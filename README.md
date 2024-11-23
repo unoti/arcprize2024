@@ -24,7 +24,8 @@ Although LLM's are frozen at inference time, there are ways to overcome this lim
 * Evaluate that hypothesis against the training items, but hold out one of the training items to use for a mini internal evaluation
 * If we fail on the task against the held out item, use reflexion to give self-advice. Try the held out item again, and iterate on this up to N times until we succeed.
 * If we don't succeed, hold this one out for deeper analysis later.  We will use deeper thinking strategies on these at the end using our remaining processing time. (Note there is a 12 hour processing time limit.)
-An example embodying the above ideas is in this [ChatGPT log](https://chatgpt.com/share/6740c5a6-4310-8004-8ff1-5d975fbd826d).  We have reproduced this log as a [pdf here](doc/sample-gpt-log.pdf).
+
+In the docs folder we have [an example GPT transcript embodying the above ideas](doc/sample-transcript.md).
 
 * Use CoT-SC to run trials multiple times to ensure accuracy.
 * Take advantage of the fact that we can try an item up to 3 times.  We can use the additional information we gain from having a failed hypothesis to our advantage.
