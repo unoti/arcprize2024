@@ -1,10 +1,10 @@
 # ARC Prize
 Experiments related to the ARC AGI prize for reasoning on problems the agent has never seen.
 
-![challenge samples](doc\img\2024-06-25-11-48-13.png)
+![challenge samples](doc/img/2024-06-25-11-48-13.png)
 
 ## Challenge description
-![challenge flood fill sample](doc\img\2024-07-15-15-51-27.png)
+![challenge flood fill sample](doc/img/2024-07-15-15-51-27.png)
 > The [Abstraction and Reasoning Corpus for Artificial General Intelligence (ARC-AGI) benchmark](https://arcprize.org/) measures an AI system's ability to efficiently learn new skills. Humans easily score 85% in ARC, whereas the best AI systems only score 34%. The ARC Prize competition encourages researchers to explore ideas beyond LLMs, which depend heavily on large datasets and struggle with novel problems.
 
 > The objective of this competition is to create an algorithm that is capable of solving abstract reasoning tasks. Critically, these are novel tasks: tasks that the algorithm has never seen before. Hence, simply memorizing a set of reasoning templates will not suffice.
