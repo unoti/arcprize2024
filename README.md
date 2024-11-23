@@ -59,6 +59,8 @@ pip install -e .
 ## Work plan
 1. Foundations and infrastructure. Set up libraries and structure.
     * Goal: can run a series of LLM calls directed by code and review the session.
+        * We don't want to be thinking about filesystems and OpenAI and JSON files and so on.
+        * We want to be thinking about our business abstractions when we get to the next milestone, so this stage is all about setting up the right abstractions so we can be spending our thinking time thinking about the business problem rather than infrastructure.
     * Doing LLM calls
     * Storing sessions
     * Clean abstractions
