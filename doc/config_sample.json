@@ -1,0 +1,7 @@
+{
+    "openai": {
+        "model": "gpt-4o",
+        "api_key": "your api key goes here",
+        "optional_config": {}
+    }
+}

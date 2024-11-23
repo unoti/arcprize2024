@@ -50,17 +50,27 @@ In the docs folder we have [an example GPT transcript embodying the above ideas]
 We used Python 3.9.13 for convenience because that's what we had installed for other projects, but we expect that later versions of Python should work fine.
 
 From the root directory of the project:
-```
+```bash
+mkdir -p local/config
+cp doc/config_sample.json local/config/config.json
+# Edit the configuration file with your api key
 python -m venv venv
 venv\scripts\activate
 pip install -e .
 ```
 
+
 ### Running tests
 From the root directory of the project:
-```
+```bash
 python -m unittest discover
 ```
+
+To run integration tests:
+```bash
+python tests/integration_tests.py
+```
+
 
 ## Work plan
 1. Foundations and infrastructure. Set up libraries and structure.
