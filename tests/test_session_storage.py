@@ -8,22 +8,29 @@ from arclib.models import (
     Session,
 )
 from arclib.dataproviders import BlobSessionStorageProvider
+from .mocks.mock_llm import MockLlmDriver
 
 
 class TestSessionStorage(unittest.TestCase):
     def setUp(self):
         self.blob = MemoryBlobProvider()
         self.session_storage = BlobSessionStorageProvider(self.blob)
+        self.llm = MockLlmDriver()
 
-    def test_session_storage(self):
-        """We can serialize and deserialize a session."""
-        # Arrange.
+    def make_basic_session(self) -> Session:
         rows = [
             DialogRow(role=DialogRole.SYSTEM, text='instructions are here'),
             DialogRow(role=DialogRole.USER, text='Unlock the doors and turn on the lights and flip the sign to Open'),
         ]
         dialog = Dialog(rows=rows)
         session = Session(dialog=dialog)
+        return session
+
+
+    def test_session_storage(self):
+        """We can serialize and deserialize a session."""
+        # Arrange.
+        session = self.make_basic_session()
 
         # Act.
         self.session_storage.save_session(session)
@@ -43,3 +50,17 @@ class TestSessionStorage(unittest.TestCase):
             self.assertEqual(row.role, row2.role)
         
         self.assertListEqual(session.dialog.as_tuples(), session2.dialog.as_tuples())
+
+    def test_llm_chat(self):
+        """Verify our implementation of the concrete method in llm_driver."""
+        result_str = self.llm.chat('howdy')
+        self.assertEqual('response(howdy)', result_str)
+
+    def test_llm_chat_dialog(self):
+        """Verify our mock implementation works"""
+        session = self.make_basic_session()
+        row = self.llm.chat_dialog(session.dialog)
+        self.assertEqual('response(Unlock the doors and turn on the lights and flip the sign to Open)', row.text)
+        self.assertEqual(DialogRole.ASSISTANT, row.role)
+
+
