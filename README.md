@@ -19,16 +19,41 @@ We think that there are approaches which can make the above statement false and 
 
 Although LLM's are frozen at inference time, there are ways to overcome this limitation.  One way that others are working on is data augmentation and fine-tuning at inference time, Test Time Training (TTT).  Another way is Reflexion.
 
+## Brief summary of ideas
+* Create a hypothesis on how to solve the task
+* Evaluate that hypothesis against the training items, but hold out one of the training items to use for a mini internal evaluation
+* If we fail on the task against the held out item, use reflexion to give self-advice. Try the held out item again, and iterate on this up to N times until we succeed.
+* If we don't succeed, hold this one out for deeper analysis later.  We will use deeper thinking strategies on these at the end using our remaining processing time. (Note there is a 12 hour processing time limit.)
+An example embodying the above ideas is in this [ChatGPT log](https://chatgpt.com/share/6740c5a6-4310-8004-8ff1-5d975fbd826d).  We have reproduced this log as a [pdf here](doc/sample-gpt-log.pdf).
+
+* Use CoT-SC to run trials multiple times to ensure accuracy.
+* Take advantage of the fact that we can try an item up to 3 times.  We can use the additional information we gain from having a failed hypothesis to our advantage.
+* We can incorpoate tools to do analysis on the items, for example doing flood fills, copying blocks of data from the input to the output, and other tedious/error prone operations.
+* We can do image analysis to gain additional insights during the deeper analysis phase when needed.
+
 ## Papers
 * [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629)
 * [Reflexion: Language Agents with Verbal Reinforcement Learning](https://arxiv.org/pdf/2303.11366)
 * Cot-SC: [Self-Consistency Improves Chain of Thought Reasoning in Language Models](https://arxiv.org/abs/2203.11171)
 
 ## Resources
-
 * [ironbar/arc24 repo](https://github.com/ironbar/arc24) Some images came from here
 * [Challenge dataset](https://github.com/fchollet/ARC-AGI/tree/master)
 * [ARC Prize 2024 Kaggle challenge](https://www.kaggle.com/competitions/arc-prize-2024/overview)
 * [ARC Prize Kaggle Leaderboard](https://www.kaggle.com/competitions/arc-prize-2024/leaderboard)
 * [Kaggle Arc Prize Discussion Threads](https://www.kaggle.com/competitions/arc-prize-2024/discussion/545671)
 * [GPT4 ARC Prize Evaluation Paper](https://openreview.net/pdf?id=3rGT5OkzpC)
+
+## Work plan
+1. Foundations and infrastructure. Set up libraries and structure.
+    * Goal: can run a series of LLM calls directed by code and review the session.
+    * Doing LLM calls
+    * Storing sessions
+    * Clean abstractions
+2. Baseline Business Logic
+    * Goal: Establish baseline business logic and do an evaluation of the first 10 or so training items.
+    * Code to evaluate a single training sample
+    * Code to run this across N samples and store the results.
+    * CLI program to run it
+3. Enhancements
+    * Incorporate ideas from the backlog, such as a curated list of strategies, reflexions, and external tools
