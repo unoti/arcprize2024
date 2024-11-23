@@ -56,6 +56,12 @@ venv\scripts\activate
 pip install -e .
 ```
 
+### Running tests
+From the root directory of the project:
+```
+python -m unittest discover
+```
+
 ## Work plan
 1. Foundations and infrastructure. Set up libraries and structure.
     * Goal: can run a series of LLM calls directed by code and review the session.

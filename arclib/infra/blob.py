@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Optional
 
 class BlobProvider(ABC):
     """A Blob provider abstraction.
@@ -19,6 +19,10 @@ class BlobProvider(ABC):
     def load(self, filename: str) -> str:
         """Load content from a blob storage with the given filename."""
 
+    @abstractmethod
+    def find(self, prefix: Optional[str] = None) -> List[str]:
+        """Find all filenames that start with the given prefix."""
+
 class MemoryBlobProvider(BlobProvider):
     """A BlobProvider implemented using an in-memory dictionary suitable for unit tests."""
     def __init__(self):
@@ -31,6 +35,12 @@ class MemoryBlobProvider(BlobProvider):
         if filename not in self.storage:
             raise BlobProvider.NotFoundException(f"File '{filename}' not found in memory storage.")
         return self.storage[filename]
+
+    def find(self, prefix: Optional[str] = None) -> List[str]:
+        if prefix:
+            return [filename for filename in self.storage if filename.startswith(prefix)]
+        return list(self.storage.keys())
+
 
 class FileSystemBlobProvider(BlobProvider):
     """A BlobProvider implemented using a directory of the local filesystem for storage.
@@ -50,3 +60,8 @@ class FileSystemBlobProvider(BlobProvider):
             raise BlobProvider.NotFoundException(f'File {filename} not found.')
         with open(file_path, 'r') as file:
             return file.read()
+
+    def find(self, prefix: Optional[str] = None) -> List[str]:
+        if prefix:
+            return [str(file.relative_to(self.root_path)) for file in self.root_path.glob(f"{prefix}*")]
+        return [str(file.relative_to(self.root_path)) for file in self.root_path.iterdir() if file.is_file()]

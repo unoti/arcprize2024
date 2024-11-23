@@ -3,9 +3,12 @@ from typing import Dict, Any
 from pydantic import BaseModel, Field
 
 from .dialog import Dialog
+from ..infra.string import random_string
+    
 
 class Session(BaseModel):
     """A session with a discussion between a user and assistant, including metadata."""
+    id: str = Field(default_factory=random_string)
     created_at: datetime = Field(default_factory=datetime.now)
     dialog: Dialog
     app_context: Dict[str, Any] = Field(default_factory=dict) # Application-specific structured data.

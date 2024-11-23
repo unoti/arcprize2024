@@ -17,6 +17,7 @@ class SessionStorageProvider(ABC):
         """Load a session by its ID."""
         pass
 
+
 class BlobSessionStorageProvider(SessionStorageProvider):
     """SessionStorageProvider with sessions stored in JSON backed by a BlobProvider.
     
@@ -27,7 +28,7 @@ class BlobSessionStorageProvider(SessionStorageProvider):
         self.blob_provider = blob_provider
 
     def filename(self, session_id: str) -> str:
-        return f"sessions/s{session_id}.json"
+        return f"sessions/s-{session_id}.json"
 
     def save_session(self, session: Session) -> None:
         filename = self.filename(session.id)
