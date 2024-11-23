@@ -4,17 +4,18 @@ Experiments related to the ARC AGI prize for reasoning on problems the agent has
 ![challenge samples](doc/img/2024-06-25-11-48-13.png)
 
 ## Challenge description
-![challenge flood fill sample](doc/img/2024-07-15-15-51-27.png)
 > The [Abstraction and Reasoning Corpus for Artificial General Intelligence (ARC-AGI) benchmark](https://arcprize.org/) measures an AI system's ability to efficiently learn new skills. Humans easily score 85% in ARC, whereas the best AI systems only score 34%. The ARC Prize competition encourages researchers to explore ideas beyond LLMs, which depend heavily on large datasets and struggle with novel problems.
 
 > The objective of this competition is to create an algorithm that is capable of solving abstract reasoning tasks. Critically, these are novel tasks: tasks that the algorithm has never seen before. Hence, simply memorizing a set of reasoning templates will not suffice.
+![challenge flood fill sample](doc/img/2024-07-15-15-51-27.png)
+
 
 ## Goals
 Others have tried LLM's on the arc-prize and obtained poor results as described in [GPT4 ARC Prize Evaluation Paper](https://openreview.net/pdf?id=3rGT5OkzpC).  
 
-In this repo we will explore some ideas and see what they can do.  Briefly the ideas involve overcoming some of the limitations of LLMs using external storage, loops, [Reflexion](https://arxiv.org/pdf/2303.11366), [chain of thought self-consistency (CoT-SC)](https://arxiv.org/abs/2203.11171), and other ideas.
-
 > "LLMs like Gemini or ChatGPT [don't work] because they're basically frozen at inference time. They're not actually learning anything." - François Chollet
+
+We think that there are approaches which can make the above statement false and overcome those limitations.  In this repo we will explore some ideas and see what they can do.  Briefly the ideas involve overcoming some of the limitations of LLMs using external storage, loops, [Reflexion](https://arxiv.org/pdf/2303.11366), [chain of thought self-consistency (CoT-SC)](https://arxiv.org/abs/2203.11171), and other ideas.
 
 Although LLM's are frozen at inference time, there are ways to overcome this limitation.  One way that others are working on is data augmentation and fine-tuning at inference time, Test Time Training (TTT).  Another way is Reflexion.
 
