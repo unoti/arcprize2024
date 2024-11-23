@@ -45,6 +45,17 @@ In the docs folder we have [an example GPT transcript embodying the above ideas]
 * [Kaggle Arc Prize Discussion Threads](https://www.kaggle.com/competitions/arc-prize-2024/discussion/545671)
 * [GPT4 ARC Prize Evaluation Paper](https://openreview.net/pdf?id=3rGT5OkzpC)
 
+## Getting started
+### Installation
+We used Python 3.9.13 for convenience because that's what we had installed for other projects, but we expect that later versions of Python should work fine.
+
+From the root directory of the project:
+```
+python -m venv venv
+venv\scripts\activate
+pip install -e .
+```
+
 ## Work plan
 1. Foundations and infrastructure. Set up libraries and structure.
     * Goal: can run a series of LLM calls directed by code and review the session.
