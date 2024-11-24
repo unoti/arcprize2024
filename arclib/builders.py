@@ -1,5 +1,5 @@
 from .models.config import ArclibConfig
-from .llm import LlmDriver
+from .llm import LlmDriver, OpenAiLlmDriver
 
 class ArcApplication:
     def __init__(self, config: ArclibConfig):
@@ -8,7 +8,8 @@ class ArcApplication:
 
     def get_llm(self):
         if not self._llm:
-            self._llm = OpenAiLlmDriver(self.config.openai)
+            openai_cfg = self.config.openai
+            self._llm = OpenAiLlmDriver(openai_cfg.model, openai_cfg.api_key, openai_cfg.optional_config)
         return self._llm
 
 _app_singleton: ArcApplication = None

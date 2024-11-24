@@ -73,14 +73,14 @@ python tests/integration_tests.py
 
 
 ## Work plan
-1. Foundations and infrastructure. Set up libraries and structure.
+1. [x] Foundations and infrastructure. Set up libraries and structure.
     * Goal: can run a series of LLM calls directed by code and review the session.
         * We don't want to be thinking about filesystems and OpenAI and JSON files and so on.
         * We want to be thinking about our business abstractions when we get to the next milestone, so this stage is all about setting up the right abstractions so we can be spending our thinking time thinking about the business problem rather than infrastructure.
     * Doing LLM calls
     * Storing sessions
     * Clean abstractions
-2. Baseline Business Logic
+2. [.] Baseline Business Logic
     * Goal: Establish baseline business logic and do an evaluation of the first 10 or so training items.
     * Code to evaluate a single training sample
     * Code to run this across N samples and store the results.
