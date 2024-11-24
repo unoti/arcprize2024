@@ -26,7 +26,6 @@ class TestSessionStorage(unittest.TestCase):
         session = Session(dialog=dialog)
         return session
 
-
     def test_session_storage(self):
         """We can serialize and deserialize a session."""
         # Arrange.
@@ -62,5 +61,3 @@ class TestSessionStorage(unittest.TestCase):
         row = self.llm.chat_dialog(session.dialog)
         self.assertEqual('response(Unlock the doors and turn on the lights and flip the sign to Open)', row.text)
         self.assertEqual(DialogRole.ASSISTANT, row.role)
-
-
