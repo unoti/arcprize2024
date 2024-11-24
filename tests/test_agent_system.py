@@ -17,6 +17,8 @@ from arclib.models import DialogRole
 from .mocks.mock_llm import MockLlmDriver
 
 
+# The entirety of the "business logic" to do our task is between these lines.
+#---
 class BrainstormTask(TaskStep):
     def execute(self, context: TaskContext):
         emotion = context.session.app_context['feeling']
@@ -50,6 +52,7 @@ class EncouragementTaskSource(TaskSource):
             ]
         )
         return assignment
+#---
 
 class TestAgentSystem(unittest.TestCase):
     diagnostic_output = False

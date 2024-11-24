@@ -106,6 +106,14 @@ TaskSource@{ shape: procs}
   LlmDriver---Agent
 ```
 
+It may seem like this is a lot of stuff to do the task. But the idea of this library and approach is to keep the business
+logic separate from the infrastructure, so that we can think at a high level about the business logic separate from
+all the various other concerns.  To see how this works out in practice, notice the "business logic" section in
+`test_agent_system.py`, it's just 20 or so lines.
+
+The purpose of all this supporting infrastructure is to make the business logic as simple as practical to write,
+understand, and maintain.
+
 ### Design discussions
 * [Agent, Task plugin design](https://chatgpt.com/share/67436359-bf38-8004-b708-e91946106278)
 
