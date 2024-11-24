@@ -71,8 +71,45 @@ To run integration tests:
 python tests/integration_tests.py
 ```
 
-## Design discussions
+## Architecture
+### Main components
+These are the main components involved in our architecture:
+
+* `TaskStep` is a piece of code which executes one step of doing a task.  These steps are executed by an `Agent`.  This is where our business logic goes, into subclasses of `TaskStep`.
+* `TaskAssignment` is a work assignment, including application-specific data (a dict) and the `TaskSteps` to accomplish it.
+* `TaskSource` generates things we need to do, creates `TaskAssignments`.  There can be many TaskSources.
+* `Agent` generates a `Session`, executes one or more `TaskSteps`, saving to the `SessionProvider` as we go.
+* `AgentSystem` has a list of `TaskSources` and creates Agents to do each `TaskAssignment`.
+* `LlmDriver` abstracts details of talking to the LLM.
+* `BlobProvider` is an abstraction for working with files: reading, writing, listing, etc.  A `FileBlobProvider` is implemented here using the local filesystem for backing storage, as well as a `MemoryBlobProvider` suitable for use in unit tests.
+
+
+```mermaid
+flowchart LR
+TaskSource@{ shape: procs}
+  TaskSource---|generates many|TaskAssignment
+  TaskAssignment---|given to|Agent
+  TaskSource --> AgentSystem
+  Agent
+  AgentSystem---|spawns|Agent
+  TaskSteps@{ shape: procs}
+  TaskAssignment---|contains many|TaskSteps
+  Agent---|executes|TaskSteps
+  Session
+  SessionProvider
+  SessionProvider---Agent
+  Agent---|creates|Session
+  LlmDriver
+  OpenAI --> LlmDriver
+  FileBlobProvider --> SessionProvider
+  blobs[(Files)] --> FileBlobProvider
+  LlmDriver---Agent
+```
+
+### Design discussions
 * [Agent, Task plugin design](https://chatgpt.com/share/67436359-bf38-8004-b708-e91946106278)
+
+
 
 
 ## Work plan
