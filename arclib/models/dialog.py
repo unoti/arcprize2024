@@ -25,3 +25,12 @@ class Dialog(BaseModel):
         This is a typical mode of input for LLM's.
         """
         return [(row.role.value, row.text) for row in self.rows]
+
+    def add(self, role: DialogRole, text: str):
+        """Add a row of dialog."""
+        row = DialogRow(role=role, text=text)
+        self.rows.append(row)
+
+    def add_user(self, text: str):
+        """Add a row of user content."""
+        self.add(role=DialogRole.USER, text=text)
