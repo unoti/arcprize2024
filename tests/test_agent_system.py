@@ -6,6 +6,7 @@ from arclib.core import (
     AgentSystem,
     AgentSystemEvent,
     AgentSystemEventType,
+    DocstringPromptStep,
     TaskAssignment,
     TaskContext,
     TaskSource,
@@ -19,20 +20,16 @@ from .mocks.mock_llm import MockLlmDriver
 
 # The entirety of the "business logic" to do our task is between these lines.
 #---
-class BrainstormTask(TaskStep):
-    def execute(self, context: TaskContext):
-        emotion = context.session.app_context['feeling']
-        context.session.dialog.add_user(f'brainstorm({emotion})')
-        context.llm.chat_dialog(context.session.dialog)
+class BrainstormTask(DocstringPromptStep):
+    """brainstorm({feeling})""" # This docstring is used as a prompt, and is formatted with app_context values.
 
-class RefineTask(TaskStep):
-    def execute(self, context: TaskContext):
-        context.session.dialog.add_user('refine')
+class RefineTask(DocstringPromptStep):
+    """refine""" # This docstring is used as a prompt, sent to the LLM, and the LLM responds.
 
-class WriteTask(TaskStep):
-    def execute(self, context: TaskContext):
-        context.session.dialog.add_user('write')
+class WriteTask(DocstringPromptStep):
+    """write"""
 
+# Make a queued task source to reduce this code...
 class EncouragementTaskSource(TaskSource):
     """Creates tasks to provide encouragement given a state of mind.
     """
@@ -56,7 +53,7 @@ class EncouragementTaskSource(TaskSource):
 
 class TestAgentSystem(unittest.TestCase):
     diagnostic_output = False
-    diagnostic_output = True
+    #diagnostic_output = True
 
     def setUp(self):
         self.blob = MemoryBlobProvider()
@@ -110,6 +107,8 @@ class TestAgentSystem(unittest.TestCase):
             self.assertEqual(f'brainstorm({feeling})', brainstorm_ask.text, 'discussion from the Brainstorm step')
             self.assertEqual(f'response(brainstorm({feeling}))', brainstorm_resp.text, 'Response to brainstorm step')
             self.assertEqual(f'refine', refine_ask.text, 'discussion from the Refine step')
+            self.assertEqual(f'response(refine)', refine_resp.text, 'LLM should have responded to refine step.')
             self.assertEqual(f'write', write_ask.text, 'discussion from the Write step')
+            self.assertEqual(f'response(write)', write_resp.text, 'LLM should have responded to write step.')
             self.assertEqual(DialogRole.USER, brainstorm_ask.role, 'This is something we said, not the LLM')
             self.assertEqual(DialogRole.ASSISTANT, brainstorm_resp.role, 'This is something the LLM said')
