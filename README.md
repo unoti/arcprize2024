@@ -71,6 +71,9 @@ To run integration tests:
 python tests/integration_tests.py
 ```
 
+## Design discussions
+* [Agent, Task plugin design](https://chatgpt.com/share/67436359-bf38-8004-b708-e91946106278)
+
 
 ## Work plan
 1. [x] Foundations and infrastructure. Set up libraries and structure.
