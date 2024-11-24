@@ -13,6 +13,7 @@ from arclib.core import (
 )
 from arclib.dataproviders import BlobSessionStorageProvider
 from arclib.infra.blob import MemoryBlobProvider
+from arclib.models import DialogRole
 from .mocks.mock_llm import MockLlmDriver
 
 
@@ -94,12 +95,18 @@ class TestAgentSystem(unittest.TestCase):
 
             if self.diagnostic_output:
                 print(f'for {feeling}: {session.dialog.as_tuples()}')
-                # for apathetic: [('user', 'brainstorm(apathetic)'), ('user', 'refine'), ('user', 'write')]
-                # for discouraged: [('user', 'brainstorm(discouraged)'), ('user', 'refine'), ('user', 'write')]                
+                # for apathetic: [('user', 'brainstorm(apathetic)'), ('assistant', 'response(brainstorm(apathetic))'), ('user', 'refine'), ('assistant', 'response(refine)'), ('user', 'write'), ('assistant', 'response(write)')]
+                # for discouraged: [('user', 'brainstorm(discouraged)'), ('assistant', 'response(brainstorm(discouraged))'), ('user', 'refine'), ('assistant', 'response(refine)'), ('user', 'write'), ('assistant', 'response(write)')]                
             self.assertEqual(feeling, session.app_context['feeling'], f'This should be the session to discuss {feeling}')
-            brainstorm_row = session.dialog.rows[0]
-            refine_row = session.dialog.rows[1]
-            write_row = session.dialog.rows[2]
-            self.assertEqual(f'brainstorm({feeling})', brainstorm_row.text, 'discussion from the Brainstorm step')
-            self.assertEqual(f'refine', refine_row.text, 'discussion from the Brainstorm step')
-            self.assertEqual(f'write', write_row.text, 'discussion from the Brainstorm step')
+            brainstorm_ask = session.dialog.rows[0]
+            brainstorm_resp = session.dialog.rows[1]
+            refine_ask = session.dialog.rows[2]
+            refine_resp = session.dialog.rows[3]
+            write_ask = session.dialog.rows[4]
+            write_resp = session.dialog.rows[5]
+            self.assertEqual(f'brainstorm({feeling})', brainstorm_ask.text, 'discussion from the Brainstorm step')
+            self.assertEqual(f'response(brainstorm({feeling}))', brainstorm_resp.text, 'Response to brainstorm step')
+            self.assertEqual(f'refine', refine_ask.text, 'discussion from the Refine step')
+            self.assertEqual(f'write', write_ask.text, 'discussion from the Write step')
+            self.assertEqual(DialogRole.USER, brainstorm_ask.role, 'This is something we said, not the LLM')
+            self.assertEqual(DialogRole.ASSISTANT, brainstorm_resp.role, 'This is something the LLM said')

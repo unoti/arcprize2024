@@ -31,5 +31,13 @@ class Agent:
         task_context = TaskContext(session=self.session, llm=self.llm)
         for step in self.steps:
             step.execute(task_context)
+
+            # If the last thing said from the dialog was from a user then invoke to LLM to get it to respond to that.
+            if self.session.dialog.rows:
+                last_row = self.session.dialog.rows[-1]
+                if last_row.role == DialogRole.USER:
+                    row = self.llm.chat_dialog(self.session.dialog)
+                    self.session.dialog.rows.append(row)
+
             self.session_storage.save_session(self.session)
         self._on_finished(self.session, self.task_assignment)
