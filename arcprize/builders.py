@@ -1,5 +1,15 @@
 from arclib.models.config import ArclibConfig
 from arclib.llm import LlmDriver, OpenAiLlmDriver
+from arcprize import ArcRunner
+
+
+class ArcBuilder:
+    def __init__(self):
+        ...
+
+    def build(self) -> ArcRunner:
+        runner = ArcRunner()
+        return runner
 
 
 def get_config() -> ArclibConfig:
