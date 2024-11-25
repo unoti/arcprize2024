@@ -2,8 +2,9 @@
 
 class ArcRunner:
     """Runs tasks for the ARC dataset."""
-    def __init__(self):
-        ...
+    def __init__(self, verbose=False):
+        self.verbose = verbose
     
     def run(self):
-        print('Arc Runner')
+        if self.verbose:
+            print('Arc Runner')

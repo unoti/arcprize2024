@@ -1,5 +1,4 @@
-from collections import deque
-from typing import List, Optional
+from typing import List
 import unittest
 
 from arclib.core import (
@@ -16,9 +15,9 @@ from arclib.models import DialogRole
 from .mocks.mock_llm import MockLlmDriver
 
 
-input_feelings = ['excited', 'curious']
-
 # The entirety of the "business logic" to do our task is between these lines.
+# The example task might be writing essays about an emotion.
+input_feelings = ['excited', 'curious']
 #---
 class BrainstormTask(DocstringPromptStep):
     """brainstorm({feeling})""" # This docstring is used as a prompt, and is formatted with app_context values.
