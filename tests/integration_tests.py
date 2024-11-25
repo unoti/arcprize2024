@@ -1,4 +1,4 @@
-from arclib.builders import ArcApplication, get_app
+from arcprize.builders import get_llm
 from arclib.llm import LlmDriver
 
 
@@ -9,8 +9,7 @@ def test_llm(llm: LlmDriver):
 
 def main():
     print('Arclib integration tests')
-    app = get_app()
-    test_llm(app.get_llm())
+    test_llm(get_llm())
     print('--Tests concluded.')
 
 
