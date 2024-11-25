@@ -8,7 +8,7 @@ from arclib.models import (
     Session,
 )
 from arclib.dataproviders import BlobSessionStorageProvider
-from .mocks.mock_llm import MockLlmDriver
+from arclib.llm import MockLlmDriver
 
 
 class TestSessionStorage(unittest.TestCase):

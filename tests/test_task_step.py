@@ -2,7 +2,7 @@ import unittest
 
 from arclib.core import DocstringPromptStep, TaskContext
 from arclib.models import Session, Dialog
-from .mocks.mock_llm import MockLlmDriver
+from arclib.llm import MockLlmDriver
 
 
 class TestTaskStep(unittest.TestCase):
