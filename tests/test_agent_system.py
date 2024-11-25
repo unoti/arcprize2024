@@ -12,7 +12,7 @@ from arclib.core import (
 from arclib.dataproviders import BlobSessionStorageProvider
 from arclib.infra.blob import MemoryBlobProvider
 from arclib.models import DialogRole
-from .mocks.mock_llm import MockLlmDriver
+from arclib.llm import MockLlmDriver
 
 
 # The entirety of the "business logic" to do our task is between these lines.

@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import List
+from typing import List, Dict, Any
 
 from ..models import ArcDataSet, ArcCase, CasePair
 
@@ -36,3 +36,9 @@ class ArcCaseProvider:
             case_pair = CasePair(input=rec['input'], output=rec['output'])
             pairs.append(case_pair)
         return pairs
+
+    def get_app_contexts(self, case_ids: List[str]) -> List[Dict[str, Any]]:
+        """Make app_context dicts for each of the given case ids."""
+        cases = [self.get_case(id) for id in case_ids]
+        dicts = [{'case_id': case.id} for case in cases]
+        return dicts
