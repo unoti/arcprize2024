@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import os
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -51,6 +52,8 @@ class FileSystemBlobProvider(BlobProvider):
 
     def save(self, filename: str, content: str) -> None:
         file_path = self.root_path / filename
+        directory = file_path.parent
+        os.makedirs(directory, exist_ok=True)
         with open(file_path, 'w') as file:
             file.write(content)
 

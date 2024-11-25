@@ -71,6 +71,20 @@ To run integration tests:
 python tests/integration_tests.py
 ```
 
+## Running Arc Prize Cases
+
+Use the command line utility. To get started, use
+```bash
+python ./arcprize/arcprize_cli.py --help
+```
+
+To run the first 3 cases, use
+```bash
+python ./arcprize/arcprize_cli.py --firstn 3
+```
+The output files will be created in a directory under `./local/out/s-{timestamp}`. In there you will see both
+json-parsable `Session` objects as well as Markdown-formatted transcripts.
+
 ## Architecture
 ### Main components
 These are the main components involved in our architecture:

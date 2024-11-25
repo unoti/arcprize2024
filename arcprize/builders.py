@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from arclib.core import AgentSystem, TaskSource, SequenceTaskSource
 from arclib.models.config import ArclibConfig
-from arclib.infra.blob import BlobProvider, MemoryBlobProvider
+from arclib.infra.blob import BlobProvider, MemoryBlobProvider, FileSystemBlobProvider
 from arclib.llm import LlmDriver, OpenAiLlmDriver, MockLlmDriver
 from arclib.dataproviders import ArcCaseProvider, SessionStorageProvider, BlobSessionStorageProvider
 from arcprize import ArcRunner
@@ -17,6 +17,7 @@ class ArcBuilder:
         self.verbose = True
         self.config: ArclibConfig = None
         self.session_dir:str = None # Relative directory prefix for outputting sessions and transcripts.
+        self.filesystem_mock = False
 
     def with_llm_mock(self, mock: bool = True) -> 'ArcBuilder':
         """Use a mock llm."""
@@ -37,6 +38,11 @@ class ArcBuilder:
         self.session_dir = dir
         return self
 
+    def with_filesystem_mock(self, filesystem_mock: bool = True) -> 'ArcBuilder':
+        """Use an in-memory filesystem instead of the real filesystem."""
+        self.filesystem_mock = filesystem_mock
+        return self
+
     def get_llm(self) -> LlmDriver:
         if self.mock_llm:
             return MockLlmDriver()
@@ -52,7 +58,10 @@ class ArcBuilder:
         return agent_system
 
     def get_session_blob_provider(self) -> BlobProvider:
-        blob = MemoryBlobProvider()
+        if self.filesystem_mock:
+            blob = MemoryBlobProvider()
+        else:
+            blob = FileSystemBlobProvider('./')
         return blob
 
     def get_session_storage(self) -> SessionStorageProvider:

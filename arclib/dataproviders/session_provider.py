@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 
 from arclib.infra.blob import BlobProvider
-from arclib.infra.time import timestamp_string
 from arclib.models import Session
 
 
@@ -25,22 +24,20 @@ class BlobSessionStorageProvider(SessionStorageProvider):
     Because of the flexibility of BlobProvider, this can work with either cloud blobs,
     the local filesystem, or in-memory blobs for unit tests.
     """
-    def __init__(self, blob_provider: BlobProvider, dir_prefix: str = None):
+    def __init__(self, blob_provider: BlobProvider, dir_prefix: str = ''):
         """
         :param blob_provider: BlobProvider for storing files.
         :param dir_prefix: Prefix all filenames with the given string.
             By default we put them in a directory based on the current timestamp.
         """
         self.blob_provider = blob_provider
-        if dir_prefix is None:
-            dir_prefix = f's-{timestamp_string()}/'
-        self.directory = dir_prefix
+        self.dir_prefix = dir_prefix
 
     def filename(self, session_id: str) -> str:
-        return f"{self.directory}sessions/s-{session_id}.json"
+        return f"{self.dir_prefix}sessions/s-{session_id}.json"
 
     def transcript_filename(self, session_id: str) -> str:
-        return f"{self.directory}transcripts/t-{session_id}.md"
+        return f"{self.dir_prefix}transcripts/t-{session_id}.md"
 
     def save_session(self, session: Session) -> None:
         filename = self.filename(session.id)
