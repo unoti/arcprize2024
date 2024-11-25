@@ -16,6 +16,7 @@ class ArcBuilder:
         self.mock_llm = False
         self.verbose = True
         self.config: ArclibConfig = None
+        self.session_dir:str = None # Relative directory prefix for outputting sessions and transcripts.
 
     def with_llm_mock(self, mock: bool = True) -> 'ArcBuilder':
         """Use a mock llm."""
@@ -30,6 +31,10 @@ class ArcBuilder:
     def with_first_n(self, count: int) -> 'ArcBuilder':
         """Limit our input to a certain number of cases."""
         self.first_n = count
+        return self
+
+    def with_session_dir(self, dir: str) -> 'ArcBuilder':
+        self.session_dir = dir
         return self
 
     def get_llm(self) -> LlmDriver:
@@ -52,7 +57,7 @@ class ArcBuilder:
 
     def get_session_storage(self) -> SessionStorageProvider:
         blob = self.get_session_blob_provider()
-        storage = BlobSessionStorageProvider(blob)
+        storage = BlobSessionStorageProvider(blob, dir_prefix=self.session_dir)
         return storage
 
     def get_case_provider(self) -> ArcCaseProvider:

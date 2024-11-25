@@ -39,7 +39,7 @@ class TestAgentSystem(unittest.TestCase):
 
     def setUp(self):
         self.blob = MemoryBlobProvider()
-        self.session_storage = BlobSessionStorageProvider(self.blob)
+        self.session_storage = BlobSessionStorageProvider(self.blob, dir_prefix='')
         self.llm = MockLlmDriver()
     
     def test_basic_task(self):
@@ -64,7 +64,7 @@ class TestAgentSystem(unittest.TestCase):
         agent_system.run()
 
         # Assert.
-        session_blobs = self.blob.find()
+        session_blobs = self.blob.find('sessions/')
         self.assertEqual(len(input_feelings), len(session_blobs), 'Should be one session for each of our tasks')
         self.assertEqual(len(input_feelings), len(started_events), 'We should have received started events for all our tasks.')
         self.assertEqual(len(input_feelings), len(finished_events), 'We should have received finished events for all our tasks.')

@@ -14,7 +14,7 @@ from arclib.llm import MockLlmDriver
 class TestSessionStorage(unittest.TestCase):
     def setUp(self):
         self.blob = MemoryBlobProvider()
-        self.session_storage = BlobSessionStorageProvider(self.blob)
+        self.session_storage = BlobSessionStorageProvider(self.blob, dir_prefix='')
         self.llm = MockLlmDriver()
 
     def make_basic_session(self) -> Session:
@@ -33,7 +33,7 @@ class TestSessionStorage(unittest.TestCase):
 
         # Act.
         self.session_storage.save_session(session)
-        filenames = self.blob.find()
+        filenames = self.blob.find('sessions/')
         session2 = self.session_storage.load_session(session.id)
 
         # Assert.

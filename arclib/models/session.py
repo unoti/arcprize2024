@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import Dict, Any
 from pydantic import BaseModel, Field
+from typing import Dict, Any, List
 
 from .dialog import Dialog
 from ..infra.string import random_string
@@ -30,3 +30,13 @@ class Session(BaseModel):
     def from_dict(cls, data: Dict[str, Any]) -> "Session":
         """Deserialize the session from a Python dict to a Session object."""
         return cls(**data)
+
+    def get_transcript(self) -> str:
+        """Create a markdown-formatted transcript of this session.
+        """
+        out: List[str] = [f'# Transcript: Session {self.id}']
+        for row in self.dialog.rows:
+            out.append(f'\n## {row.role.value}')
+            out.append(row.text)
+            out.append('')
+        return '\n'.join(out)

@@ -15,6 +15,7 @@ class TestArcRunner(unittest.TestCase):
         self.builder = ArcBuilder()\
             .with_llm_mock()\
             .with_stdout(self.diagnostic_output)\
+            .with_session_dir('')\
             .with_first_n(self.case_count)
         self.runner = self.builder.build()
         self.session_storage = self.runner.agent_system._session_storage
@@ -37,5 +38,10 @@ class TestArcRunner(unittest.TestCase):
             sessions_by_id[case_id] = session
 
         transcript_filenames = self.session_blob.find('transcripts/')
-        #self.assertEqual(len(transcript_filenames), self.case_count, 'There should be one transcript per session')
-        #print(session.dialog.get_transcript())
+        self.assertEqual(len(transcript_filenames), self.case_count, 'There should be one transcript per session')
+        for filename in transcript_filenames:
+            transcript_md = self.session_blob.load(filename)
+            session = sessions_by_id
+            if self.diagnostic_output:
+                print(transcript_md)
+                print('---')
