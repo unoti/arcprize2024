@@ -110,6 +110,25 @@ It may seem like this is a lot of stuff to do the task. But the idea of this lib
 logic separate from the infrastructure, so that we can think at a high level about the business logic separate from
 all the various other concerns.  To see how this works out in practice, notice the "business logic" section in
 `test_agent_system.py`, it's just 10 or so lines.
+```python
+# The entirety of the "business logic" to do our task is between these lines.
+# The example task might be writing essays about an emotion.
+input_feelings = ['excited', 'curious']
+#---
+class BrainstormTask(DocstringPromptStep):
+    """brainstorm({feeling})""" # This docstring is used as a prompt, and is formatted with app_context values.
+
+class RefineTask(DocstringPromptStep):
+    """refine""" # This docstring is used as a prompt, sent to the LLM, and the LLM responds.
+
+class WriteTask(DocstringPromptStep):
+    """write"""
+
+def make_task_source() -> TaskSource:
+    app_contexts = [{'feeling': feeling} for feeling in input_feelings]
+    return SequenceTaskSource(app_contexts, [BrainstormTask, RefineTask, WriteTask])
+#---
+```
 
 The purpose of all this supporting infrastructure is to make the business logic as simple as practical to write,
 understand, and maintain.
