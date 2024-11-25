@@ -94,3 +94,4 @@ class TestAgentSystem(unittest.TestCase):
             self.assertEqual(f'response(write)', write_resp.text, 'LLM should have responded to write step.')
             self.assertEqual(DialogRole.USER, brainstorm_ask.role, 'This is something we said, not the LLM')
             self.assertEqual(DialogRole.ASSISTANT, brainstorm_resp.role, 'This is something the LLM said')
+

@@ -4,6 +4,7 @@ from typing import Optional
 
 from ..llm import LlmDriver
 from ..models import Session
+from ..infra.string import dedent
 
 
 @dataclass
@@ -34,13 +35,14 @@ class TaskStep(ABC):
     # def set_next_step()... we could have methods here on TaskStep that let us dynamically change the plan.
     # either in terms of a "replace remaining plan" or "take this side trip" kind of way...
 
+
 class DocstringPromptStep(TaskStep):
     """A TaskStep which contains a prompt in its docstring and gives the assistant a chance to respond.
 
     See test_agent_system.py for example usage.
     """
     def execute(self, context: TaskContext):
-        prompt_str = self.__doc__
+        prompt_str = dedent(self.__doc__)
         vars = self.prompt_variables(context)
         if vars:
             prompt_str = prompt_str.format(**vars)
