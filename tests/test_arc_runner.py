@@ -8,7 +8,7 @@ class TestArcRunner(unittest.TestCase):
     #diagnostic_output = True
 
     def setUp(self):
-        self.builder = ArcBuilder().llm_mock().show_output(self.diagnostic_output)
+        self.builder = ArcBuilder().with_llm_mock().with_stdout(self.diagnostic_output)
         self.runner = self.builder.build()
         
     def test_runner(self):

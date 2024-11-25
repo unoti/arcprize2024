@@ -16,12 +16,12 @@ class ArcBuilder:
         self.verbose = True
         self.config: ArclibConfig = None
 
-    def llm_mock(self, mock: bool = True) -> 'ArcBuilder':
+    def with_llm_mock(self, mock: bool = True) -> 'ArcBuilder':
         """Use a mock llm."""
         self.mock_llm = mock
         return self
 
-    def show_output(self, show: bool = True) -> 'ArcBuilder':
+    def with_stdout(self, show: bool = True) -> 'ArcBuilder':
         self.verbose = show
         return self
 
