@@ -1,5 +1,5 @@
 from collections import deque
-from typing import List
+from typing import List, Optional
 import unittest
 
 from arclib.core import (
@@ -7,16 +7,16 @@ from arclib.core import (
     AgentSystemEvent,
     AgentSystemEventType,
     DocstringPromptStep,
-    TaskAssignment,
-    TaskContext,
+    SequenceTaskSource,
     TaskSource,
-    TaskStep
 )
 from arclib.dataproviders import BlobSessionStorageProvider
 from arclib.infra.blob import MemoryBlobProvider
 from arclib.models import DialogRole
 from .mocks.mock_llm import MockLlmDriver
 
+
+input_feelings = ['excited', 'curious']
 
 # The entirety of the "business logic" to do our task is between these lines.
 #---
@@ -29,26 +29,9 @@ class RefineTask(DocstringPromptStep):
 class WriteTask(DocstringPromptStep):
     """write"""
 
-# Make a queued task source to reduce this code...
-class EncouragementTaskSource(TaskSource):
-    """Creates tasks to provide encouragement given a state of mind.
-    """
-    def __init__(self, states_of_mind: List[str]):
-        self.states_of_mind = deque(states_of_mind) # We can pop off the left, and this keeps states_of_mind intact.
-
-    def get_task(self):
-        if not self.states_of_mind: # Stop if there is nothing left to do.
-            return None
-        state_of_mind = self.states_of_mind.popleft()
-        assignment = TaskAssignment(
-            app_context={'feeling': state_of_mind},
-            steps=[
-                BrainstormTask(),
-                RefineTask(),
-                WriteTask(),
-            ]
-        )
-        return assignment
+def make_task_source() -> TaskSource:
+    app_contexts = [{'feeling': feeling} for feeling in input_feelings]
+    return SequenceTaskSource(app_contexts, [BrainstormTask, RefineTask, WriteTask])
 #---
 
 class TestAgentSystem(unittest.TestCase):
@@ -63,8 +46,7 @@ class TestAgentSystem(unittest.TestCase):
     def test_basic_task(self):
         """We can complete a basic task consisting of two steps."""
         # Arrange.
-        input_feelings = ['apathetic', 'discouraged']
-        task_sources = [EncouragementTaskSource(input_feelings)]
+        task_sources = [make_task_source()]
         agent_system = AgentSystem(task_sources, self.llm, self.session_storage)
 
         started_events: List[AgentSystemEvent] = [] # These are to make sure we saw the events we expected.
@@ -95,8 +77,8 @@ class TestAgentSystem(unittest.TestCase):
 
             if self.diagnostic_output:
                 print(f'for {feeling}: {session.dialog.as_tuples()}')
-                # for apathetic: [('user', 'brainstorm(apathetic)'), ('assistant', 'response(brainstorm(apathetic))'), ('user', 'refine'), ('assistant', 'response(refine)'), ('user', 'write'), ('assistant', 'response(write)')]
-                # for discouraged: [('user', 'brainstorm(discouraged)'), ('assistant', 'response(brainstorm(discouraged))'), ('user', 'refine'), ('assistant', 'response(refine)'), ('user', 'write'), ('assistant', 'response(write)')]                
+                # for excited: [('user', 'brainstorm(excited)'), ('assistant', 'response(brainstorm(excited))'), ('user', 'refine'), ('assistant', 'response(refine)'), ('user', 'write'), ('assistant', 'response(write)')]
+                # for curious: [('user', 'brainstorm(curious)'), ('assistant', 'response(brainstorm(curious))'), ('user', 'refine'), ('assistant', 'response(refine)'), ('user', 'write'), ('assistant', 'response(write)')]                
             self.assertEqual(feeling, session.app_context['feeling'], f'This should be the session to discuss {feeling}')
             brainstorm_ask = session.dialog.rows[0]
             brainstorm_resp = session.dialog.rows[1]
