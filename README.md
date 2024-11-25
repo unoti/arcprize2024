@@ -116,7 +116,7 @@ all the various other concerns.  To see how this works out in practice, notice t
 input_feelings = ['excited', 'curious']
 #---
 class BrainstormTask(DocstringPromptStep):
-    """brainstorm({feeling})""" # This docstring is used as a prompt, and is formatted with app_context values.
+    """brainstorm({feeling})""" # This docstring is used as a prompt, formatted with app_context dict.
 
 class RefineTask(DocstringPromptStep):
     """refine""" # This docstring is used as a prompt, sent to the LLM, and the LLM responds.
