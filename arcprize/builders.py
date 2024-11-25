@@ -9,6 +9,7 @@ from arcprize import ArcRunner
 from arcprize.arc_tasks import all_arc_task_classes
 from .arc_tasks import all_arc_task_classes
 
+
 class ArcBuilder:
     def __init__(self):
         self.first_n: Optional[int] = None
@@ -22,7 +23,13 @@ class ArcBuilder:
         return self
 
     def with_stdout(self, show: bool = True) -> 'ArcBuilder':
+        """Set whether we want to output to stdout while running."""
         self.verbose = show
+        return self
+
+    def with_first_n(self, count: int) -> 'ArcBuilder':
+        """Limit our input to a certain number of cases."""
+        self.first_n = count
         return self
 
     def get_llm(self) -> LlmDriver:
@@ -58,7 +65,8 @@ class ArcBuilder:
             case_ids = case_ids[:self.first_n]
         context_items = case_provider.get_app_contexts(case_ids)
         source = SequenceTaskSource(context_items, all_arc_task_classes)
-        return source
+        all_sources = [source]
+        return all_sources
 
     def get_config(self) -> ArclibConfig:
         if self.config is None:

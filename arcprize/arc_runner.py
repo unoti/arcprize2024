@@ -11,3 +11,4 @@ class ArcRunner:
     def run(self):
         if self.verbose:
             print('Arc Runner')
+        self.agent_system.run()
