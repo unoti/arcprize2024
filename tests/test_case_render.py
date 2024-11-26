@@ -29,11 +29,11 @@ class TestCaseRender(unittest.TestCase):
         case_pair = CasePair(input=pair_dict['input'], output=pair_dict['output'])
 
         # Act.
-        rendered = case_pair_text(case_pair, 0)
+        rendered = case_pair_text(case_pair, 0, 'Sample')
 
         # Assert.
-        expected = dedent("""## Case 0
-            ### Case 0 Input: size 6x6
+        expected = dedent("""## Sample Case 0
+            ### Sample Case 0 Input: size 6x6
             ```
             0 0 0 0 0 0
             0 0 3 0 0 0
@@ -42,7 +42,7 @@ class TestCaseRender(unittest.TestCase):
             0 0 0 3 0 0
             0 0 0 0 0 0
             ```
-            ### Case 0 Output: size 6x6
+            ### Sample Case 0 Output: size 6x6
             ```
             0 0 0 0 0 0
             0 0 3 0 0 0
@@ -52,4 +52,7 @@ class TestCaseRender(unittest.TestCase):
             0 0 0 0 0 0
             ```
             """)
-        self.assertEqual(expected, rendered, 'This is how the output should look')
+        # We're replacing newlines so that the single-line diff in the error output is more helpful.
+        a = expected.replace('\n','*')
+        b = expected.replace('\n','*')
+        self.assertEqual(a, b, 'This is how the output should look (newlines have been replaced)')

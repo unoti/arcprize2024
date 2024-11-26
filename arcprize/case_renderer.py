@@ -1,3 +1,9 @@
+"""This module formats ARC cases as either readable text, or as JSON.
+Internally we use lots of lists of strings instead of strings
+because building strings incrementally with concatenation can
+be inefficient, and also because it can be useful sometimes
+to keep the lines separate until the last moment (to avoid repeatedly joining and splitting).
+"""
 from typing import List
 
 from arclib.models import ArcCase, CasePair, rows_size_tuple
@@ -14,9 +20,12 @@ def size_str(rows: List[DataRow]) -> str:
     return f'{width}x{height}'
     
 
-def row_group_strs(rows: List[DataRow], title: str, seq: int) -> List[str]:
+#rename row_group to matrix
+def row_group_strs(rows: List[DataRow], title: str, seq: int, case_prefix: str='') -> List[str]:
     """Renders a group of rows (the input or output section of a CasePair) with title and size."""
-    out = [f'### Case {seq} {title}: size {size_str(rows)}']
+    if case_prefix:
+        case_prefix = case_prefix + ' '
+    out = [f'### {case_prefix}Case {seq} {title}: size {size_str(rows)}']
     out.append('```')
     for row in rows:
         out.append(' '.join([str(x) for x in row]))
@@ -24,16 +33,43 @@ def row_group_strs(rows: List[DataRow], title: str, seq: int) -> List[str]:
     return out
 
 
-def case_pair_text(case_pair: CasePair, seq: int) -> str:
+#rename row_group to matrix
+def row_group_text(rows: List[DataRow], title: str, seq: int, case_prefix: str='') -> str:
+    """Outputs a matrix to a string."""
+    return '\n'.join(row_group_strs(rows, title, seq, case_prefix))
+
+
+def case_pair_strs(case_pair: CasePair, seq: int, title_prefix: str) -> List[str]:
+    """Renders a single case pair with its size to a list of strings."""
+    out = [f'## {title_prefix} Case {seq}']
+    out.extend(row_group_strs(case_pair.input, 'Input', seq, title_prefix))
+    out.extend(row_group_strs(case_pair.output, 'Output', seq, title_prefix))
+    out.append('')
+    return out
+
+
+def case_pair_text(case_pair: CasePair, seq: int, title_prefix: str) -> str:
     """Renders a single case pair with its size.
     
     :param seq: Sequence number for formatting.
+    :param title_prefix: Put this before the title for each of the pairs.
     """
-    out = [f'## Case {seq}']
-    out.extend(row_group_strs(case_pair.input, 'Input', seq))
-    out.extend(row_group_strs(case_pair.output, 'Output', seq))
-    out.append('')
+    out = case_pair_strs(case_pair, seq, title_prefix)
     return '\n'.join(out)
+
+
+def case_pair_list_strs(case_pairs: List[CasePair], title: str) -> List[str]:
+    """Output a group of case pairs, both their inputs and outputs."""
+    out = []
+    for seq, pair in enumerate(case_pairs):
+        out.extend(case_pair_strs(pair, seq, title))
+    return out
+
+
+def case_pair_list_text(case_pairs: List[CasePair], title: str) -> str:
+    return '\n'.join(case_pair_list_strs(case_pairs, title))    
+
+
 
 # JSON: this section formats to JSON, but with a sensible indent strategy.
 # The default json.dumps(d, indent=4) for a list of ints outputs every integer on its own line

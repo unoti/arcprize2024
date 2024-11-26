@@ -8,8 +8,8 @@ from arclib.models import Session
 
 class TestArcRunner(unittest.TestCase):
     case_count = 2
-    diagnostic_output = False
-    #diagnostic_output = True
+    #diagnostic_output = False
+    diagnostic_output = True
 
     def setUp(self):
         self.builder = ArcBuilder()\
