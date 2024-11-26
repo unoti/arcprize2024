@@ -1,5 +1,9 @@
 from arclib.core import DocstringPromptStep, TaskContext
 from arclib.models import ArcCase
+from arcprize.case_renderer import case_to_str
+
+def get_case(context: TaskContext) -> ArcCase:
+    return ArcCase(**context.session.app_context['case'])
 
 
 class IntroduceProblem(DocstringPromptStep):
@@ -15,10 +19,13 @@ class IntroduceProblem(DocstringPromptStep):
     ```json
     {input_item_str}
     ```
+    (this is case id {case_id}) # TEMPORARY
     """
     def prompt_variables(self, context: TaskContext):
-        case: ArcCase = context.session.app_context['case']
-        input_item_str = case.train[0].json_str()
-        return {'input_item_str': input_item_str}
+        case = get_case(context)
+        input_item_str = case_to_str(case)
+        return {'input_item_str': input_item_str,
+                'case_id': context.session.app_context['case_id'] # temp
+                }
 
 all_arc_task_classes = [IntroduceProblem]
