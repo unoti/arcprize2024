@@ -1,6 +1,7 @@
 import random
 import string
 import textwrap
+from typing import List
 
 def random_string(length=8):
     """Generates a random printable string."""
@@ -23,10 +24,16 @@ def dedent(s: str) -> str:
     result = first + '\n' + textwrap.dedent(rest)
     return result
 
+def indent_rows(rows: List[str], count: int) -> List[str]:
+    """Add a given number of spaces in front of a list of strings to a new list."""
+    if count <= 0:
+        return rows
+    space_str = spaces(count)
+    return [space_str + s for s in rows]
 
 def spaces(count: int) -> str:
     """Make a given number of spaces."""
-    return ' ' * spaces
+    return ' ' * count
 
 def make_comma(comma: bool) -> str:
     """Conditionally create a comma."""
