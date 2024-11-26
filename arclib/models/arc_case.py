@@ -1,7 +1,7 @@
 from dataclasses import dataclass, asdict
 from enum import Enum
 from pydantic import BaseModel
-from typing import List
+from typing import List, Tuple
 
 class ArcDataSet(str, Enum):
     """Data sets in the arc challenge."""
@@ -26,3 +26,8 @@ class ArcCase(BaseModel):
     train: List[CasePair]
     test: List[CasePair]
 
+def size_tuple(rows: List[DataRow]) -> Tuple[int, int]:
+    """Calculate the size of a list of rows."""
+    x = len(rows[0])
+    y = len(rows)
+    return (x, y)

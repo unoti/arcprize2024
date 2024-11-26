@@ -8,8 +8,8 @@ from arclib.models import Session
 
 class TestArcRunner(unittest.TestCase):
     case_count = 2
-    #diagnostic_output = False
-    diagnostic_output = True
+    diagnostic_output = False
+    #diagnostic_output = True
 
     def setUp(self):
         self.builder = ArcBuilder()\
@@ -29,7 +29,6 @@ class TestArcRunner(unittest.TestCase):
 
         # Assert.
         session_filenames = self.session_blob.find('sessions/')
-        print(session_filenames)
         self.assertEqual(len(session_filenames), self.case_count, 'There should be some sessions!')
 
         sessions_by_id: Dict[str, Session] = {}

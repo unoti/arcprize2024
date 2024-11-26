@@ -29,7 +29,7 @@ def _case_pair_to_str(cp: CasePair, indent: int, comma: bool) -> List[str]:
     out.append(spaces(indent) + '}' + make_comma(comma))
     return out
 
-def case_to_str(case: ArcCase) -> str:
+def case_to_json_str(case: ArcCase) -> str:
     """Renders the input samples of an ARC case to a string.
 
     The default JSON format with indent=4 works poorly for arc cases,
@@ -45,5 +45,13 @@ def case_to_str(case: ArcCase) -> str:
         out.extend(rows)
     indent -= space_per_indent
     out += [spaces(indent) + '}']
-    print(out)
     return '\n'.join(out)
+
+
+def row_group_text(rows: List[DataRow], title: str) -> str:
+    """Renders a group of rows (the input or output section of a CasePair) with title and size."""
+
+
+def case_pair_text(case_pair: CasePair) -> str:
+    """Renders a single case pair with its size."""
+    out = []
