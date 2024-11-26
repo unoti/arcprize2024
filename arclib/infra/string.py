@@ -22,3 +22,15 @@ def dedent(s: str) -> str:
     rest = '\n'.join([line.rstrip() for line in lines[1:]])
     result = first + '\n' + textwrap.dedent(rest)
     return result
+
+
+def spaces(count: int) -> str:
+    """Make a given number of spaces."""
+    return ' ' * spaces
+
+def make_comma(comma: bool) -> str:
+    """Conditionally create a comma."""
+    if comma:
+        return ','
+    else:
+        return ''

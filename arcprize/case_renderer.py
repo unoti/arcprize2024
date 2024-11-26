@@ -1,16 +1,12 @@
 from typing import List
 
 from arclib.models import ArcCase, CasePair
+from arclib.infra.string import spaces, make_comma
 
 
 DataRow = List[int]
+space_per_indent = 4
 
-def make_comma(comma: bool) -> str:
-    if comma:
-        return ','
-    else:
-        return ''
-    
 def datarow_to_str(row: DataRow, comma: bool) -> str:
     row_strs = ', '.join([str(n) for n in row])
     return f'                [{row_strs}]{make_comma(comma)}'
@@ -41,8 +37,8 @@ def case_to_str(case: ArcCase) -> str:
     out = [ '{']
     out.append('    "train": [')
     for index, case_pair in enumerate(case.train):
-        for rows in _case_pair_to_str(case_pair, index < len(case.train) - 1):
-            out.append(rows)
+        rows = _case_pair_to_str(case_pair, index < len(case.train) - 1)
+        out.extend(rows)
     out += ['}']
     print(out)
     return '\n'.join(out)
