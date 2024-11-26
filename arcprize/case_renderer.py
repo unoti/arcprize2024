@@ -1,12 +1,43 @@
 from typing import List
 
-from arclib.models import ArcCase, CasePair
+from arclib.models import ArcCase, CasePair, rows_size_tuple
 from arclib.infra.string import spaces, make_comma
 
 
 DataRow = List[int]
 space_per_indent = 4
 
+# This section is about formatting a more readable (non-json) text representation of cases.
+def size_str(rows: List[DataRow]) -> str:
+    """Returns a string indicating the size of a matrix."""
+    width, height = rows_size_tuple(rows)
+    return f'{width}x{height}'
+    
+
+def row_group_strs(rows: List[DataRow], title: str, seq: int) -> List[str]:
+    """Renders a group of rows (the input or output section of a CasePair) with title and size."""
+    out = [f'### Case {seq} {title}: size {size_str(rows)}']
+    out.append('```')
+    for row in rows:
+        out.append(' '.join([str(x) for x in row]))
+    out.append('```')
+    return out
+
+
+def case_pair_text(case_pair: CasePair, seq: int) -> str:
+    """Renders a single case pair with its size.
+    
+    :param seq: Sequence number for formatting.
+    """
+    out = [f'## Case {seq}']
+    out.extend(row_group_strs(case_pair.input, 'Input', seq))
+    out.extend(row_group_strs(case_pair.output, 'Output', seq))
+    out.append('')
+    return '\n'.join(out)
+
+# JSON: this section formats to JSON, but with a sensible indent strategy.
+# The default json.dumps(d, indent=4) for a list of ints outputs every integer on its own line
+# Which is unreadable.
 def datarow_to_str(row: DataRow, indent: int, comma: bool) -> str:
     row_strs = ', '.join([str(n) for n in row])
     return spaces(indent) + f'[{row_strs}]{make_comma(comma)}'
@@ -48,10 +79,3 @@ def case_to_json_str(case: ArcCase) -> str:
     return '\n'.join(out)
 
 
-def row_group_text(rows: List[DataRow], title: str) -> str:
-    """Renders a group of rows (the input or output section of a CasePair) with title and size."""
-
-
-def case_pair_text(case_pair: CasePair) -> str:
-    """Renders a single case pair with its size."""
-    out = []

@@ -1,6 +1,6 @@
 from arclib.core import DocstringPromptStep, TaskContext
 from arclib.models import ArcCase
-from arcprize.case_renderer import case_to_json_str
+from arcprize.case_renderer import case_pair_text
 
 def get_case(context: TaskContext) -> ArcCase:
     return ArcCase(**context.session.app_context['case'])
@@ -15,14 +15,13 @@ class IntroduceProblem(DocstringPromptStep):
     Let's look at the first case.  Given this input, consider what you think the output
     should be.
 
-    Input item:
-    ```json
     {input_item_str}
-    ```
     """
+    # [ ] show all the train questions
+    # [ ] show the input side of the test question
     def prompt_variables(self, context: TaskContext):
         case = get_case(context)
-        input_item_str = case_to_json_str(case)
+        input_item_str = case_pair_text(case.test[0], 0)
         return {'input_item_str': input_item_str,
                 'case_id': context.session.app_context['case_id'] # temp
                 }

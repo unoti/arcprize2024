@@ -44,7 +44,7 @@ class Session(BaseModel):
             out.append('```\n')
 
         for row in self.dialog.rows:
-            out.append(f'\n## {row.role.value}')
+            out.append(f'\n# {row.role.value.title}')
             out.append(row.text)
             out.append('')
         return '\n'.join(out)

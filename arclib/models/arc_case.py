@@ -26,7 +26,7 @@ class ArcCase(BaseModel):
     train: List[CasePair]
     test: List[CasePair]
 
-def size_tuple(rows: List[DataRow]) -> Tuple[int, int]:
+def rows_size_tuple(rows: List[DataRow]) -> Tuple[int, int]:
     """Calculate the size of a list of rows."""
     x = len(rows[0])
     y = len(rows)
