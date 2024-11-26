@@ -1,11 +1,11 @@
-from typing import List
+from typing import Dict, List
 import unittest
 
 from arclib.core import (
     AgentSystem,
     AgentSystemEvent,
     AgentSystemEventType,
-    DocstringPromptStep,
+    PromptStep,
     SequenceTaskSource,
     TaskSource,
 )
@@ -19,13 +19,13 @@ from arclib.llm import MockLlmDriver
 # The example task might be writing essays about an emotion.
 input_feelings = ['excited', 'curious']
 #---
-class BrainstormTask(DocstringPromptStep):
+class BrainstormTask(PromptStep):
     """brainstorm({feeling})""" # This docstring is used as a prompt, and is formatted with app_context values.
 
-class RefineTask(DocstringPromptStep):
+class RefineTask(PromptStep):
     """refine""" # This docstring is used as a prompt, sent to the LLM, and the LLM responds.
 
-class WriteTask(DocstringPromptStep):
+class WriteTask(PromptStep):
     """write"""
 
 def make_task_source() -> TaskSource:
@@ -48,22 +48,23 @@ class TestAgentSystem(unittest.TestCase):
         task_sources = [make_task_source()]
         agent_system = AgentSystem(task_sources, self.llm, self.session_storage)
 
-        started_events: List[AgentSystemEvent] = [] # These are to make sure we saw the events we expected.
-        finished_events: List[AgentSystemEvent] = []
+        events_by_type: Dict[AgentSystemEventType, List[AgentSystemEvent]] = {}
 
-        def on_started(event: AgentSystemEvent):
-            started_events.append(event)
-
-        def on_finished(event: AgentSystemEvent):
-            finished_events.append(event)
-
-        agent_system.add_event(AgentSystemEventType.TASK_STARTED, on_started)
-        agent_system.add_event(AgentSystemEventType.TASK_FINISHED, on_finished)
+        def on_event_received(event: AgentSystemEvent):
+            event_list = events_by_type.get(event.event_type, [])
+            if not event_list:
+                events_by_type[event.event_type] = event_list
+            event_list.append(event)
+                
+        agent_system.add_event(AgentSystemEventType.TASK_STARTED, on_event_received)
+        agent_system.add_event(AgentSystemEventType.TASK_FINISHED, on_event_received)
 
         # Act.
         agent_system.run()
 
         # Assert.
+        started_events = events_by_type[AgentSystemEventType.TASK_STARTED]
+        finished_events = events_by_type[AgentSystemEventType.TASK_FINISHED]
         session_blobs = self.blob.find('sessions/')
         self.assertEqual(len(input_feelings), len(session_blobs), 'Should be one session for each of our tasks')
         self.assertEqual(len(input_feelings), len(started_events), 'We should have received started events for all our tasks.')

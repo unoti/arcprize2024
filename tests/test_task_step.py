@@ -1,6 +1,6 @@
 import unittest
 
-from arclib.core import DocstringPromptStep, TaskContext
+from arclib.core import PromptStep, TaskContext
 from arclib.models import Session, Dialog
 from arclib.llm import MockLlmDriver
 
@@ -12,7 +12,7 @@ class TestTaskStep(unittest.TestCase):
     def test_task_multiline(self):
         """When formatting a prompt with a docstring we properly handle indentation."""
         # Arrange.
-        class MyTask(DocstringPromptStep):
+        class MyTask(PromptStep):
             """Line 1
             Line 2
                 Line 3 indent

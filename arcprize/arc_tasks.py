@@ -1,20 +1,20 @@
-from arclib.core import DocstringPromptStep, TaskContext
+from arclib.core import PromptStep, SystemPromptStep, TaskContext
 from arclib.models import ArcCase
-from arcprize.case_renderer import case_pair_text, case_pair_list_text, row_group_text
+from arcprize.case_renderer import case_pair_list_text, row_group_text
+
 
 def get_case(context: TaskContext) -> ArcCase:
     return ArcCase(**context.session.app_context['case'])
 
-#*TODO: add system prompt step
-# class ArcSystemPrompt(SystemPromptStep):
-#     """You are an expert puzzle solver and an expert software engineer,
-#     in a quiet environment where you can think carefully, focus and think to do an exam.
-#     """
-#     role = DialogRole.SYSTEM # This line won't actually be needed because of how we subclassed
+
+class ArcSystemPrompt(SystemPromptStep):
+    """You are an expert puzzle solver and an expert software engineer here
+    to do everything you can to help the user.
+    You are in a quiet environment where you can think carefully, and focus to do an exam.
+    """
 
 
-
-class IntroduceProblem(DocstringPromptStep):
+class IntroduceProblem(PromptStep):
     """We are working on a problem from the ARC Prize, and you are a smart and
     creative agent working on one of the problems from the challenge.
     This involves looking at a pattern of several sample input cases, determining what is happening
@@ -38,13 +38,15 @@ class IntroduceProblem(DocstringPromptStep):
         return {'train_set_str': train_set_str}
 
 
-class ProposeSolution1(DocstringPromptStep):
+class ProposeSolution1(PromptStep):
     """Now let's move on to the first "Test" item, the first one that we need to think through
     and solve ourselves. This is a Test case like an Exam, one that we must think very hard about.
     We can also think of it as a Test in the sense that all the above cases are Training cases.
     Given this input, consider what you think the output should be:
 
     {input_item_str}
+
+    Given that input item, what do you suppose the output should be?
     """
     def prompt_variables(self, context: TaskContext) -> dict:
         case = get_case(context)
@@ -52,7 +54,25 @@ class ProposeSolution1(DocstringPromptStep):
         return {'input_item_str': input_item_str}
 
 
+class RowCount(PromptStep):
+    """How many output rows do you think should be present?"""
+
+
+class InputOutputRows(PromptStep):
+    """How many input and output rows do each of the examples have, for the ones that we know about?"""
+
+
+class OutputAnswer(PromptStep):
+    """Please output for me what you think the output section should look like for this
+    problem given what you have observed.
+    """
+
+
 all_arc_task_classes = [
+    ArcSystemPrompt,
     IntroduceProblem,
     ProposeSolution1,
+    RowCount,
+    InputOutputRows,
+    OutputAnswer,
 ]
