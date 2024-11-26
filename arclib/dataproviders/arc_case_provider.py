@@ -40,5 +40,5 @@ class ArcCaseProvider:
     def get_app_contexts(self, case_ids: List[str]) -> List[Dict[str, Any]]:
         """Make app_context dicts for each of the given case ids."""
         cases = [self.get_case(id) for id in case_ids]
-        dicts = [{'case_id': case.id} for case in cases]
+        dicts = [{'case_id': case.id, 'case': case} for case in cases]
         return dicts

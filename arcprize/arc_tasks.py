@@ -1,6 +1,5 @@
-import json
-
 from arclib.core import DocstringPromptStep, TaskContext
+from arclib.models import ArcCase
 
 
 class IntroduceProblem(DocstringPromptStep):
@@ -18,10 +17,8 @@ class IntroduceProblem(DocstringPromptStep):
     ```
     """
     def prompt_variables(self, context: TaskContext):
-        input_item_json = {
-            'test': [123, 0, 0]
-        }
-        input_item_str = json.dumps(input_item_json, indent=4)
+        case: ArcCase = context.session.app_context['case']
+        input_item_str = case.train[0].json_str()
         return {'input_item_str': input_item_str}
 
 all_arc_task_classes = [IntroduceProblem]

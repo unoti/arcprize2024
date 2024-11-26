@@ -8,14 +8,15 @@ from arclib.models import Session
 
 class TestArcRunner(unittest.TestCase):
     case_count = 2
-    diagnostic_output = False
-    #diagnostic_output = True
+    #diagnostic_output = False
+    diagnostic_output = True
 
     def setUp(self):
         self.builder = ArcBuilder()\
             .with_llm_mock()\
             .with_stdout(self.diagnostic_output)\
             .with_session_dir('')\
+            .with_filesystem_mock()\
             .with_first_n(self.case_count)
         self.runner = self.builder.build()
         self.session_storage = self.runner.agent_system._session_storage
@@ -28,6 +29,7 @@ class TestArcRunner(unittest.TestCase):
 
         # Assert.
         session_filenames = self.session_blob.find('sessions/')
+        print(session_filenames)
         self.assertEqual(len(session_filenames), self.case_count, 'There should be some sessions!')
 
         sessions_by_id: Dict[str, Session] = {}
