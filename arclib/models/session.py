@@ -38,7 +38,9 @@ class Session(BaseModel):
         out: List[str] = [f'# Transcript: Session {self.id}']
         if self.app_context:
             out.append('## app_context\n```json\n')
-            out.append(json.dumps(self.app_context, indent=4))
+            # Not using indent because the formatting is bad for ARC cases.
+            #out.append(json.dumps(self.app_context, indent=4))
+            out.append(json.dumps(self.app_context))
             out.append('```\n')
 
         for row in self.dialog.rows:
