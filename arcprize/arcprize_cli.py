@@ -13,6 +13,8 @@ def parse_arguments():
                         help='LLM model to use. Mock provider can be used for testing.')
     parser.add_argument('--firstn', '-fn', type=int, help='Only process the first N problems')
     parser.add_argument('--outdir', '-od', help='Output directory. By default we use local/out/s-{timestamp}')
+    parser.add_argument('--seq', '-s', nargs='+', type=int, help='Execute cases given their sequence numbers')
+    parser.add_argument('--cases', '-c', nargs='+', help='Execute one or more case ids')
     args = parser.parse_args()
     return args
 
@@ -30,6 +32,12 @@ def make_runner(args: argparse.Namespace) -> ArcRunner:
     if args.firstn is not None:
         print(f'Processing the first {args.firstn} items')
         builder.with_first_n(args.firstn)
+    if args.seq:
+        print(f'Processing sequence ids {args.seq}')
+        builder.with_sequence_ids(args.seq)
+    if args.cases:
+        print(f'Processing case ids {args.cases}')
+        builder.with_case_ids(args.cases)
     if args.outdir is not None:
         dir_prefix = args.outdir
     else:        

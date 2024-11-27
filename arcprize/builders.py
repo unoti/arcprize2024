@@ -18,6 +18,8 @@ class ArcBuilder:
         self.config: ArclibConfig = None
         self.session_dir:str = None # Relative directory prefix for outputting sessions and transcripts.
         self.filesystem_mock = False
+        self.case_sequence_ids = None # When None, process all cases.
+        self.case_ids = None # Only process the given case ids.
 
     def with_llm_mock(self, mock: bool = True) -> 'ArcBuilder':
         """Use a mock llm."""
@@ -41,6 +43,15 @@ class ArcBuilder:
     def with_filesystem_mock(self, filesystem_mock: bool = True) -> 'ArcBuilder':
         """Use an in-memory filesystem instead of the real filesystem."""
         self.filesystem_mock = filesystem_mock
+        return self
+
+    def with_sequence_ids(self, sequence_ids: List[int]) -> 'ArcBuilder':
+        """Process only the cases given by the list of 1-based integers."""
+        self.case_sequence_ids = sequence_ids
+        return self
+
+    def with_case_ids(self, case_ids: List[str]) -> 'ArcBuilder':
+        self.case_ids = case_ids
         return self
 
     def get_llm(self) -> LlmDriver:
@@ -77,6 +88,11 @@ class ArcBuilder:
         case_ids = case_provider.get_case_ids()
         if self.first_n:
             case_ids = case_ids[:self.first_n]
+        if self.case_sequence_ids:
+            all_case_ids = case_ids
+            case_ids = [all_case_ids[i-1] for i in self.case_sequence_ids]
+        if self.case_ids:
+            case_ids = self.case_ids
         context_items = case_provider.get_app_contexts(case_ids)
         source = SequenceTaskSource(context_items, all_arc_task_classes)
         all_sources = [source]
