@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import List, Tuple
+from typing import Optional, List, Tuple
 from pydantic import BaseModel, Field
 
 class DialogRole(str, Enum):
@@ -19,12 +19,15 @@ class Dialog(BaseModel):
     """A conversation between a user and assistant."""
     rows: List[DialogRow]
 
-    def as_tuples(self) -> List[Tuple[str, str]]:
+    def as_tuples(self, role: Optional[DialogRole] = None) -> List[Tuple[str, str]]:
         """Returns this dialog as a list of tuples of [role, text].
         
         This is a typical mode of input for LLM's.
+        :param role: If specified, limit the output to the given role.
         """
-        return [(row.role.value, row.text) for row in self.rows]
+        if role is None:
+            return [(row.role.value, row.text) for row in self.rows]
+        return [(row.role.value, row.text) for row in self.rows if row.role == role]
 
     def add(self, role: DialogRole, text: str):
         """Add a row of dialog."""

@@ -3,7 +3,7 @@ import unittest
 
 from arcprize import ArcBuilder
 from arclib.infra.blob import BlobProvider
-from arclib.models import Session
+from arclib.models import Session, DialogRole
 from arclib.core import AgentSystemEvent, AgentSystemEventType
 from arcprize.arc_tasks import all_arc_task_classes
 
@@ -47,7 +47,7 @@ class TestArcRunner(unittest.TestCase):
         for filename in transcript_filenames:
             transcript_md = self.session_blob.load(filename)
             if self.diagnostic_output:
-                print(transcript_md)
+                #print(transcript_md)
                 print('---')
 
         # Make sure we got all the events.
@@ -58,6 +58,12 @@ class TestArcRunner(unittest.TestCase):
         for event_type in [AgentSystemEventType.STEP_STARTED, AgentSystemEventType.STEP_FINISHED]:
             events_received = self.events_by_type[event_type]
             self.assertGreaterEqual(len(events_received), self.case_count * (step_count-1), f'We should have received one {event_type.value} event per step per case')
+
+        if self.diagnostic_output:
+            session = sessions_by_id['007bbfb7']
+            rows = session.dialog.as_tuples(DialogRole.USER)
+            for role, text in rows:
+                print(text[:50])
 
     def _on_event(self, event: AgentSystemEvent):
         event_list = self.events_by_type.get(event.event_type)

@@ -1,10 +1,19 @@
+from typing import Tuple
+
 from arclib.core import PromptStep, SystemPromptStep, TaskContext
-from arclib.models import ArcCase
+from arclib.models import ArcCase, CasePair
 from arcprize.case_renderer import case_pair_list_text, row_group_text
 
 
 def get_case(context: TaskContext) -> ArcCase:
     return ArcCase(**context.session.app_context['case'])
+
+
+def get_holdout_case(context: TaskContext) -> Tuple[int, CasePair]:
+    """Gets the last test case which we initially hide from the agent."""
+    case = get_case(context)
+    index = len(case.train) - 1
+    return (index, case.train[index])
 
 
 class ArcSystemPrompt(SystemPromptStep):
@@ -34,38 +43,31 @@ class IntroduceProblem(PromptStep):
     """
     def prompt_variables(self, context: TaskContext) -> dict:
         case = get_case(context)
-        train_set_str = case_pair_list_text(case.train, 'Training')
+        cases_to_show = case.train[:-1] # Hold out one training case to reveal later.
+        train_set_str = case_pair_list_text(cases_to_show, 'Training')
         return {'train_set_str': train_set_str}
 
 
-class ProposeSolution1(PromptStep):
-    """Now let's move on to the first "Test" item, the first one that we need to think through
-    and solve ourselves. This is a Test case like an Exam, one that we must think very hard about.
-    We can also think of it as a Test in the sense that all the above cases are Training cases.
-    Given this input, consider what you think the output should be:
-
-    {input_item_str}
-
-    Given that input item, what do you suppose the output should be?
-    """
-    def prompt_variables(self, context: TaskContext) -> dict:
-        case = get_case(context)
-        input_item_str = row_group_text(case.test[0].input, 0, 'Input', 'Test')
-        return {'input_item_str': input_item_str}
-
-
 class RowCount(PromptStep):
-    """How many output rows do you think should be present?"""
+    """For problems like these, how many output rows do you think should be present?"""
 
 
 class InputOutputRows(PromptStep):
     """How many input and output rows do each of the examples have, for the ones that we know about?"""
 
 
-class OutputAnswer1(PromptStep):
-    """Please output for me what you think the output section should look like for this
-    problem given what you have observed.
+class ProposeSolution1(PromptStep):
+    """Here is a new problem from the same set.  What do you suppose its answer is?
+
+    {input_item_str}
+
+    Consider how to apply your approach on this, then provide your answer for the output for this one.
     """
+    def prompt_variables(self, context: TaskContext) -> dict:
+        case_seq, case = get_holdout_case(context)
+        input_item_str = row_group_text(case.input, case_seq, 'Input', 'Test')
+        return {'input_item_str': input_item_str}
+
 
 class CheckAnswer1(PromptStep):
     """Let's see how you did.  This is the answer for that one:
@@ -76,37 +78,31 @@ class CheckAnswer1(PromptStep):
     What advice would you give yourself, or what insight were you missing, if any?
     """
     def prompt_variables(self, context: TaskContext) -> dict:
-        case = get_case(context)
-        output_item_str = row_group_text(case.test[0].output, 0, 'Output', 'Test')
+        case_seq, case = get_holdout_case(context)
+        output_item_str = row_group_text(case.output, case_seq, 'Output', 'Test')
         return {'output_item_str': output_item_str}
 
 
-class ProposeSolution2(PromptStep):
-    """Let's try another problem from the test set.  Here is the input pattern:
+class ProposeTestAnswer(PromptStep):
+    """Let's try another problem, this one is from the test set, the real exam.
+    Here is the input pattern:
 
-    {input_item_str}
+    {output_item_str}
 
     Please output a solution for this one.
     """
     def prompt_variables(self, context: TaskContext) -> dict:
         case = get_case(context)
-        output_item_str = row_group_text(case.test[1].Input, 0, 'Input', 'Test')
+        output_item_str = row_group_text(case.test[0].input, 0, 'Input', 'Test')
         return {'output_item_str': output_item_str}
-    
-    def condition(self, context) -> bool:
-        case = get_case(context)
-        return len(case.test) > 1 # We can't do this step if there aren't enough test cases.
 
-
-print('next step: Hold out one of the training cases and reveal that next.')
 
 all_arc_task_classes = [
     ArcSystemPrompt,
     IntroduceProblem,
-    ProposeSolution1,
     RowCount,
     InputOutputRows,
-    OutputAnswer1,
+    ProposeSolution1,
     CheckAnswer1,
-    ProposeSolution2,
+    ProposeTestAnswer,
 ]

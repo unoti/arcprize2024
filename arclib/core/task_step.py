@@ -51,7 +51,10 @@ class PromptStep(TaskStep):
         prompt_str = dedent(self.__doc__)
         vars = self.prompt_variables(context)
         if vars:
-            prompt_str = prompt_str.format(**vars)
+            try:
+                prompt_str = prompt_str.format(**vars)
+            except KeyError as e:
+                raise ValueError(f'A prompt variable in {self.__class__.__name__} is missing: {str(e)}')
         context.session.dialog.add(self.role, prompt_str)
 
     def prompt_variables(self, context: TaskContext) -> Optional[dict]:
