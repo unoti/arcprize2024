@@ -3,7 +3,6 @@ from typing import Callable, Dict, Optional, List
 from . import Agent, TaskAssignment, TaskSource, TaskStep
 from ..dataproviders import SessionStorageProvider
 from ..llm import LlmDriver
-from ..models import Session
 from .agent_events import AgentSystemEventType, AgentSystemEvent
 
 
@@ -29,6 +28,11 @@ class AgentSystem:
             callback_list = []
             self._callbacks_by_type[event_type] = callback_list
         callback_list.append(callback)
+    
+    def add_all_events(self, callback: EventCallback):
+        """Register a callback to receive all event types."""
+        for event_type in AgentSystemEventType:
+            self.add_event(event_type, callback)
 
     def run(self):
         """Consume from task sources and work on tasks.

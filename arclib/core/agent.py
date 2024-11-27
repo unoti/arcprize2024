@@ -28,6 +28,7 @@ class Agent:
         self._fire_event(AgentSystemEventType.TASK_STARTED)
         task_context = TaskContext(session=self.session, llm=self.llm)
         for step in self.steps:
+            self._fire_event(AgentSystemEventType.STEP_STARTED, step)
             step.execute(task_context)
 
             # If the last thing said from the dialog was from a user then invoke to LLM to get it to respond to that.
@@ -38,6 +39,7 @@ class Agent:
                     self.session.dialog.rows.append(row)
 
             self.session_storage.save_session(self.session)
+            self._fire_event(AgentSystemEventType.STEP_FINISHED, step)
         self._fire_event(AgentSystemEventType.TASK_FINISHED)
 
     def _fire_event(self, event_type: AgentSystemEventType, step: Optional[TaskStep]=None):
