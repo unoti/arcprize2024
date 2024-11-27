@@ -98,6 +98,8 @@ class ProposeSolution2(PromptStep):
         return len(case.test) > 1 # We can't do this step if there aren't enough test cases.
 
 
+print('next step: Hold out one of the training cases and reveal that next.')
+
 all_arc_task_classes = [
     ArcSystemPrompt,
     IntroduceProblem,
