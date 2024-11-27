@@ -1,4 +1,7 @@
 from abc import ABC, abstractmethod
+from typing import Type
+
+from pydantic import BaseModel
 
 from ..models import Dialog, DialogRow, DialogRole
 
@@ -46,3 +49,10 @@ class LlmDriver(ABC):
         :returns: The LLM's response that continues the conversation, as a DialogRow.
             Note that the LLM driver must also set the token counts on the dialog rows.
         """
+
+    def chat_structured(self, dialog: Dialog, response_format: Type[BaseModel]) -> DialogRow:
+        """Start a chat and expect a structure response in JSON
+
+        The response will be placed in the output DialogRow in row.metadata.structured_response.
+        """
+        raise NotImplementedError('Structured chat output is not implemented in this LLM Driver.')

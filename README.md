@@ -4,6 +4,8 @@ Experiments related to the ARC AGI prize for reasoning on problems the agent has
 ![challenge samples](doc/img/2024-06-25-11-48-13.png)
 
 ## Challenge description
+To get a feel for what the task is that we're testing, try doing the [introductory problems on the ArcPrize website](https://arcprize.org/).  There are 6 introductory problems, try each one my selecting "Next".  You can also [play with the entire train and test set yourself](https://arcprize.org/play), it's actually a very fun puzzle game.
+
 > The [Abstraction and Reasoning Corpus for Artificial General Intelligence (ARC-AGI) benchmark](https://arcprize.org/) measures an AI system's ability to efficiently learn new skills. Humans easily score 85% in ARC, whereas the best AI systems only score 34%. The ARC Prize competition encourages researchers to explore ideas beyond LLMs, which depend heavily on large datasets and struggle with novel problems.
 
 > The objective of this competition is to create an algorithm that is capable of solving abstract reasoning tasks. Critically, these are novel tasks: tasks that the algorithm has never seen before. Hence, simply memorizing a set of reasoning templates will not suffice.
@@ -96,56 +98,45 @@ Arc Runner
 (3) Case 017c7c7b......Done
 (venv) PS D:\code\proj\arc-prize\arcprize2024> 
 ```
-Here's part of the output from the 3rd test case:
+Here's part of the output from one of these outputs:
 ---
-4. **Training Case 3**: Input has 3 rows; output has 9 rows.
-5. **Training Case 4**: Input has 3 rows; output has 9 rows.
 
-Therefore, the observed pattern consistently transforms a 3x3 input matrix into a 9x9 output matrix, indicating that the output should have 9 rows for any given test case following the same transformation rules.
-
-
-# User
-Please output for me what you think the output section should look like for this
-problem given what you have observed.
-
-
+Please output a solution for this one.
 
 # Assistant
-Certainly! Based on the transformation pattern identified from the training cases�where each element in the 3x3 input matrix influences a specific 3x3 sub-block in the 9x9 output matrix�here's how the output should look for the provided test case input:
+Based on the transformations observed in the previous examples, the goal is to replace each '1' in the input grid with '2' in the output grid, while maintaining the overall structure of tripling the number of rows for a given set within a vertical layout. Let's apply this transformation to **Test Case Input 0**.
 
-### Test Case Input 0: size 3x3
+### Test Case Input 0: size 3x6
 ```
-7 0 7
-7 0 7
-7 7 0
-```
-
-### Expected Output: size 9x9
-```
-7 7 7 0 0 0 7 7 7
-7 7 7 0 0 0 7 7 7
-7 7 7 0 0 0 7 7 7
-7 7 7 0 0 0 7 7 7
-7 7 7 0 0 0 7 7 7
-7 7 7 0 0 0 7 7 7
-7 7 7 7 7 7 0 0 0
-7 7 7 7 7 7 0 0 0
-7 7 7 7 7 7 0 0 0
+1 1 1
+0 1 0
+0 1 0
+1 1 1
+0 1 0
+0 1 0
 ```
 
-### Explanation:
+### Applying the Transformation Rule:
+- For each row in the input, replace each '1' with '2'.
 
-- **Top-left 3x3 block** is filled with 7 because the input \((0,0)\) is 7.
-- **Top 3 middle columns** are 0 because the input at all respective positions \((0,1)\) and \((1,1)\) are 0.
-- **Top-right 3x3 block** is filled with 7 because the input \((0,2)\) is 7.
-- **Middle-left 3x3 block** is filled with 7 because the input \((1,0)\) is 7.
-- **Bottom-left and bottom-middle 3x3 blocks** are filled with 7 because the input \((2,0)\) and \((2,1)\) are 7.
-- **Bottom-right 3x3 block** remains 0 because the input \((2,2)\) is 0.
+Let's produce the output:
 
-The structure of relevance is to align and copy the values into their angular block positions as described.
+### Test Case Output 0: size 3x9
+```
+2 2 2
+0 2 0
+0 2 0
+2 2 2
+0 2 0
+0 2 0
+2 2 2
+0 2 0
+0 2 0
+```
+
+Here, each '1' is replaced with '2', following the same pattern transformation that has been consistent with the previous examples. This pattern effectively mirrors the input's original structural style of repeating rows while applying the value transformation.
 
 ---
-Is this correct? I'm not sure right now.  I'll move on to evaluation next, but this is where we're at so far.
 
 ## Architecture
 ### Main components
@@ -223,10 +214,11 @@ understand, and maintain.
     * Doing LLM calls
     * Storing sessions
     * Clean abstractions
-2. [.] Baseline Business Logic
+2. [x] Baseline Business Logic
     * Goal: Establish baseline business logic and do an evaluation of the first 10 or so training items.
     * Code to evaluate a single training sample
     * Code to run this across N samples and store the results.
     * CLI program to run it
-3. Enhancements
+3. [.] [Structured Outputs](https://openai.com/index/introducing-structured-outputs-in-the-api/), to allow posting answers, using Pydantic input models.
+4. Enhancements
     * Incorporate ideas from the backlog, such as a curated list of strategies, reflexions, and external tools
