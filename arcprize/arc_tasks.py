@@ -62,10 +62,40 @@ class InputOutputRows(PromptStep):
     """How many input and output rows do each of the examples have, for the ones that we know about?"""
 
 
-class OutputAnswer(PromptStep):
+class OutputAnswer1(PromptStep):
     """Please output for me what you think the output section should look like for this
     problem given what you have observed.
     """
+
+class CheckAnswer1(PromptStep):
+    """Let's see how you did.  This is the answer for that one:
+
+    {output_item_str}
+
+    How did you do?  If you got it wrong then consider a strategy for getting this right next time.
+    What advice would you give yourself, or what insight were you missing, if any?
+    """
+    def prompt_variables(self, context: TaskContext) -> dict:
+        case = get_case(context)
+        output_item_str = row_group_text(case.test[0].output, 0, 'Output', 'Test')
+        return {'output_item_str': output_item_str}
+
+
+class ProposeSolution2(PromptStep):
+    """Let's try another problem from the test set.  Here is the input pattern:
+
+    {input_item_str}
+
+    Please output a solution for this one.
+    """
+    def prompt_variables(self, context: TaskContext) -> dict:
+        case = get_case(context)
+        output_item_str = row_group_text(case.test[1].Input, 0, 'Input', 'Test')
+        return {'output_item_str': output_item_str}
+    
+    def condition(self, context) -> bool:
+        case = get_case(context)
+        return len(case.test) > 1 # We can't do this step if there aren't enough test cases.
 
 
 all_arc_task_classes = [
@@ -74,5 +104,7 @@ all_arc_task_classes = [
     ProposeSolution1,
     RowCount,
     InputOutputRows,
-    OutputAnswer,
+    OutputAnswer1,
+    CheckAnswer1,
+    ProposeSolution2,
 ]

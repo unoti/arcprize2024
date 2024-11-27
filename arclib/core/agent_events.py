@@ -13,6 +13,7 @@ class AgentSystemEventType(Enum):
     TASK_FINISHED = 'task_finished'
     STEP_STARTED = 'step_started'
     STEP_FINISHED = 'step_finished'
+    STEP_SKIPPED = 'step_skipped' # When the condition on the step returns false.
 
 
 @dataclass

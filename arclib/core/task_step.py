@@ -30,7 +30,11 @@ class TaskStep(ABC):
     def update_app_context(self, section: str, name: str, value: str, schema_description: str):
         """Update the app_context in the session and include metadata describing what the information is."""
         raise NotImplementedError()
-    
+
+    def condition(self, context: TaskContext) -> bool:
+        """Execute this step only if this condition returns True."""
+        return True
+
     # Dynamic plan updates:
     # def set_next_step()... we could have methods here on TaskStep that let us dynamically change the plan.
     # either in terms of a "replace remaining plan" or "take this side trip" kind of way...

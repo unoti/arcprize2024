@@ -27,6 +27,9 @@ class Agent:
         self._fire_event(AgentSystemEventType.TASK_STARTED)
         task_context = TaskContext(session=self.session, llm=self.llm)
         for step in self.steps:
+            if not step.condition(task_context):
+                self._fire_event(AgentSystemEventType.STEP_FINISHED, step)
+                continue
             self._fire_event(AgentSystemEventType.STEP_STARTED, step)
             step.execute(task_context)
 
