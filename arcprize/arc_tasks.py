@@ -70,7 +70,7 @@ class ProposeSolution1(PromptStep):
 
 
 class CheckAnswer1(PromptStep):
-    """Let's see how you did.  This is the answer for that one:
+    """Let's see how you did.  This is the answer for that one, training case {case_seq}:
 
     {output_item_str}
 
@@ -80,7 +80,7 @@ class CheckAnswer1(PromptStep):
     def prompt_variables(self, context: TaskContext) -> dict:
         case_seq, case = get_holdout_case(context)
         output_item_str = row_group_text(case.output, case_seq, 'Output', 'Test')
-        return {'output_item_str': output_item_str}
+        return {'output_item_str': output_item_str, 'case_seq': case_seq}
 
 
 class ProposeTestAnswer(PromptStep):
