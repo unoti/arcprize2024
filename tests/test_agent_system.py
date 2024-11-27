@@ -51,13 +51,16 @@ class TestAgentSystem(unittest.TestCase):
         events_by_type: Dict[AgentSystemEventType, List[AgentSystemEvent]] = {}
 
         def on_event_received(event: AgentSystemEvent):
-            event_list = events_by_type.get(event.event_type, [])
+            event_list = events_by_type.get(event.event_type)
             if not event_list:
+                event_list = []
                 events_by_type[event.event_type] = event_list
             event_list.append(event)
                 
         agent_system.add_event(AgentSystemEventType.TASK_STARTED, on_event_received)
         agent_system.add_event(AgentSystemEventType.TASK_FINISHED, on_event_received)
+        agent_system.add_event(AgentSystemEventType.STEP_STARTED, on_event_received)
+        agent_system.add_event(AgentSystemEventType.STEP_FINISHED, on_event_received)
 
         # Act.
         agent_system.run()

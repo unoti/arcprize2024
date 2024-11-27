@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Callable, Optional, List
+from typing import Callable, Dict, Optional, List
 
-from . import Agent, TaskAssignment, TaskSource
+from . import Agent, TaskAssignment, TaskSource, TaskStep
 from ..dataproviders import SessionStorageProvider
 from ..llm import LlmDriver
 from ..models import Session
@@ -11,6 +11,8 @@ from ..models import Session
 class AgentSystemEventType(Enum):
     TASK_STARTED = 'task_started'
     TASK_FINISHED = 'task_finished'
+    STEP_STARTED = 'step_started'
+    STEP_FINISHED = 'step_finished'
 
 
 @dataclass
@@ -18,7 +20,10 @@ class AgentSystemEvent:
     event_type: AgentSystemEventType
     session: Session
     task_assignment: TaskAssignment
+    step: Optional[TaskStep] = None
 
+
+EventCallback = Callable[[AgentSystemEvent], None]
 
 class AgentSystem:
     """Works on tasks provided by TaskSources.
@@ -30,18 +35,16 @@ class AgentSystem:
         self._task_sources = task_sources
         self._llm = llm
         self._session_storage = session_storage
-        self._on_started: List[Callable[[AgentSystemEvent], None]] = []
-        self._on_finished: List[Callable[[AgentSystemEvent], None]] = []
+        self._callbacks_by_type: Dict[List[EventCallback]] = {}
 
-    def add_event(self, event_type: AgentSystemEventType, callback: Callable[[AgentSystemEvent], None]):
+    def add_event(self, event_type: AgentSystemEventType, callback: EventCallback):
         """Register a callback to notify us as work is started or concluded.
         """
-        if event_type == AgentSystemEventType.TASK_STARTED:
-            self._on_started.append(callback)
-        elif event_type == AgentSystemEventType.TASK_FINISHED:
-            self._on_finished.append(callback)
-        else:
-            raise ValueError(f'Invalid event type {event_type}')
+        callback_list = self._callbacks_by_type.get(event_type)
+        if not callback_list:
+            callback_list = []
+            self._callbacks_by_type[event_type] = callback_list
+        callback_list.append(callback)
 
     def run(self):
         """Consume from task sources and work on tasks.
@@ -66,15 +69,15 @@ class AgentSystem:
     def _agent_started(self, session: Session, task_assignment: TaskAssignment):
         """Agent calls this when it starts work."""
         event = AgentSystemEvent(AgentSystemEventType.TASK_STARTED, session, task_assignment)
-        self._fire_event(event, self._on_started)
+        self._fire_event(event)
 
     def _agent_finished(self, session: Session, task_assignment: TaskAssignment):
         """Agent calls this when it finishes work."""
         event = AgentSystemEvent(AgentSystemEventType.TASK_FINISHED, session, task_assignment)
-        self._fire_event(event, self._on_finished)
+        self._fire_event(event)
 
-    def _fire_event(self, event: AgentSystemEvent, callbacks: Callable[[AgentSystemEvent], None]):
-        for callback in callbacks:
+    def _fire_event(self, event: AgentSystemEvent):
+        for callback in self._callbacks_by_type.get(event.event_type, []):
             callback(event)
 
     def _run_task(self, task_assignment: TaskAssignment):
