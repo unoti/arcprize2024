@@ -1,4 +1,3 @@
-from dataclasses import dataclass, asdict
 from enum import Enum
 from pydantic import BaseModel
 from typing import List, Tuple
@@ -10,15 +9,9 @@ class ArcDataSet(str, Enum):
 
 DataRow = List[int]
 
-@dataclass
-class CasePair:
+class CasePair(BaseModel):
     input: List[DataRow]
     output: List[DataRow]
-
-    def to_dict(self) -> dict:
-        """Return this CasePair as a dictionary."""
-        return asdict(self)
-
 
 class ArcCase(BaseModel):
     id: str
@@ -31,3 +24,7 @@ def rows_size_tuple(rows: List[DataRow]) -> Tuple[int, int]:
     x = len(rows[0])
     y = len(rows)
     return (x, y)
+
+class Matrix(BaseModel):
+    """This is used for structuring OpenAI responses for the output matrix."""
+    rows: List[DataRow]

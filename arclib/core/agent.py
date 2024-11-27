@@ -37,7 +37,7 @@ class Agent:
             if self.session.dialog.rows:
                 last_row = self.session.dialog.rows[-1]
                 if last_row.role == DialogRole.USER:
-                    row = self.llm.chat_dialog(self.session.dialog)
+                    row = step.send_llm(self.llm, self.session.dialog)
                     self.session.dialog.rows.append(row)
 
             self.session_storage.save_session(self.session)

@@ -17,7 +17,7 @@ class DialogRow(BaseModel):
 
 class Dialog(BaseModel):
     """A conversation between a user and assistant."""
-    rows: List[DialogRow]
+    rows: List[DialogRow] = Field(default_factory=list)
 
     def as_tuples(self, role: Optional[DialogRole] = None) -> List[Tuple[str, str]]:
         """Returns this dialog as a list of tuples of [role, text].

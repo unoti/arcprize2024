@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Type
+
+from pydantic import BaseModel
 
 from ..llm import LlmDriver
-from ..models import Session, DialogRole
+from ..models import Session, DialogRole, DialogRow, Dialog
 from ..infra.string import dedent
 
 
@@ -35,6 +37,12 @@ class TaskStep(ABC):
         """Execute this step only if this condition returns True."""
         return True
 
+    def send_llm(self, llm: LlmDriver, dialog: Dialog) -> DialogRow:
+        """Send this dialog row to the LLM to get a response.
+        This is overridden by StructuredPromptStep when we need to force a structured output.
+        """
+        return llm.chat_dialog(dialog)
+
     # Dynamic plan updates:
     # def set_next_step()... we could have methods here on TaskStep that let us dynamically change the plan.
     # either in terms of a "replace remaining plan" or "take this side trip" kind of way...
@@ -47,8 +55,15 @@ class PromptStep(TaskStep):
     """
     role = DialogRole.USER # Subclasses can change this, or you can use SystemPromptStep for brevity.
 
+    def get_prompt_template(self, context: TaskContext) -> str:
+        """Gets the prompt to use for this step.
+        
+        Default implementation uses the docstring of the class.
+        """
+        return dedent(self.__doc__)
+
     def execute(self, context: TaskContext):
-        prompt_str = dedent(self.__doc__)
+        prompt_str = self.get_prompt_template(context)
         vars = self.prompt_variables(context)
         if vars:
             try:
@@ -68,3 +83,17 @@ class PromptStep(TaskStep):
 class SystemPromptStep(PromptStep):
     """Like PromptStep, except its output goes to the role SYSTEM instead of USER."""
     role = DialogRole.SYSTEM
+
+
+class StructuredPromptStep(PromptStep):
+    """A PromptStep where the output from the LLM goes into a Pydantic model.
+
+    Specify the model with response_model.
+    """
+    @abstractmethod
+    def response_model(self) -> Type[BaseModel]:
+        """Indicates the class to use when responding. Subclasses must override this."""
+
+    # def execute(self, context: TaskContext):
+    #     super().execute(context)
+    #     # Update the dialog line we added to insert the metadata for the class name.
