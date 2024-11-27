@@ -1,26 +1,10 @@
-from dataclasses import dataclass
-from enum import Enum
 from typing import Callable, Dict, Optional, List
 
 from . import Agent, TaskAssignment, TaskSource, TaskStep
 from ..dataproviders import SessionStorageProvider
 from ..llm import LlmDriver
 from ..models import Session
-
-
-class AgentSystemEventType(Enum):
-    TASK_STARTED = 'task_started'
-    TASK_FINISHED = 'task_finished'
-    STEP_STARTED = 'step_started'
-    STEP_FINISHED = 'step_finished'
-
-
-@dataclass
-class AgentSystemEvent:
-    event_type: AgentSystemEventType
-    session: Session
-    task_assignment: TaskAssignment
-    step: Optional[TaskStep] = None
+from .agent_events import AgentSystemEventType, AgentSystemEvent
 
 
 EventCallback = Callable[[AgentSystemEvent], None]
@@ -66,16 +50,6 @@ class AgentSystem:
                 return task_assignment
         return None
 
-    def _agent_started(self, session: Session, task_assignment: TaskAssignment):
-        """Agent calls this when it starts work."""
-        event = AgentSystemEvent(AgentSystemEventType.TASK_STARTED, session, task_assignment)
-        self._fire_event(event)
-
-    def _agent_finished(self, session: Session, task_assignment: TaskAssignment):
-        """Agent calls this when it finishes work."""
-        event = AgentSystemEvent(AgentSystemEventType.TASK_FINISHED, session, task_assignment)
-        self._fire_event(event)
-
     def _fire_event(self, event: AgentSystemEvent):
         for callback in self._callbacks_by_type.get(event.event_type, []):
             callback(event)
@@ -85,7 +59,6 @@ class AgentSystem:
             task_assignment=task_assignment,
             llm=self._llm,
             session_storage=self._session_storage,
-            on_started=self._agent_started,
-            on_finished=self._agent_finished,
+            on_event=self._fire_event
             )
         agent.run()

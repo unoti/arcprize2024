@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from typing import Dict, Any, List, Callable
+from typing import Callable, Optional
 
 from ..dataproviders import SessionStorageProvider
 from ..llm import LlmDriver
-from ..models import Session, Dialog, DialogRow, DialogRole
-from . import TaskContext, TaskAssignment
+from ..models import Session, Dialog, DialogRole
+from . import TaskContext, TaskAssignment, TaskStep, AgentSystemEvent, AgentSystemEventType
 
 class Agent:
     """Completes an input task using language models, code, and tools.
@@ -13,8 +13,7 @@ class Agent:
                  task_assignment: TaskAssignment, # Instructions about what we must do. Steps, app_context.
                  llm: LlmDriver, # For talking with an LLM.
                  session_storage: SessionStorageProvider, # Saves sessions.
-                 on_started: Callable[[Session, TaskAssignment], None], # We call this when we start work.
-                 on_finished: Callable[[Session, TaskAssignment], None], # We call this when we finish work.
+                 on_event: Callable[[AgentSystemEvent], None], # Agent will send events here.
                  ):
         self.task_assignment = task_assignment
         self.llm = llm
@@ -22,12 +21,11 @@ class Agent:
         self.steps = task_assignment.steps
         dialog = Dialog(rows=[])
         self.session = Session(dialog=dialog, app_context=task_assignment.app_context)
-        self._on_started = on_started
-        self._on_finished = on_finished
+        self._on_event = on_event
 
     def run(self):
         """Run the task to completion."""
-        self._on_started(self.session, self.task_assignment)
+        self._fire_event(AgentSystemEventType.TASK_STARTED)
         task_context = TaskContext(session=self.session, llm=self.llm)
         for step in self.steps:
             step.execute(task_context)
@@ -40,4 +38,8 @@ class Agent:
                     self.session.dialog.rows.append(row)
 
             self.session_storage.save_session(self.session)
-        self._on_finished(self.session, self.task_assignment)
+        self._fire_event(AgentSystemEventType.TASK_FINISHED)
+
+    def _fire_event(self, event_type: AgentSystemEventType, step: Optional[TaskStep]=None):
+        event = AgentSystemEvent(event_type, self.session, self.task_assignment, step)
+        self._on_event(event)
