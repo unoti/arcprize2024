@@ -1,7 +1,7 @@
 import unittest
 
-from arclib.core import PromptStep, TaskContext, StructuredPromptStep
-from arclib.models import Session, Dialog, Matrix
+from arclib.core import PromptStep, TaskContext
+from arclib.models import Session, Dialog
 from arclib.llm import MockLlmDriver
 
 

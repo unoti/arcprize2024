@@ -108,7 +108,9 @@ class ProposeTestAnswer(StructuredPromptStep):
 
 class ScoringStep(SystemPromptStep):
     """
-    ### Agent Answer: `{scoring}`
+    ## Agent Answer: `{scoring}`
+
+    {agent_answer}
 
     {correct_answer}
     """
@@ -118,6 +120,7 @@ class ScoringStep(SystemPromptStep):
         # sent to the LLM, because we only send to the LLM when the last dialog row is a User role.
         last_row = context.session.dialog.rows[-1]
         matrix: Matrix = last_row.metadata.structured_result
+        agent_answer = matrix_text(matrix.rows, 0, '', 'Agent Answer')
         case = get_case(context)
         success = case.test[0].output == matrix.rows
         context.session.app_context['success'] = success # This will get saved into the session.
@@ -125,9 +128,10 @@ class ScoringStep(SystemPromptStep):
         if success:
             correct_answer = ''
         else:
-            answer = matrix_text(case.test[0].output, 'Output', 0, 'Test')
-            correct_answer = f'### Correct Answer\n\n```json\n{answer}\n```'
-        return {'scoring': scoring, 'correct_answer': correct_answer}
+            correct_answer = matrix_text(case.test[0].output, 'Output', 0, 'Correct Answer')
+        return {'scoring': scoring,
+                'agent_answer': agent_answer,
+                'correct_answer': correct_answer}
 
 
 
