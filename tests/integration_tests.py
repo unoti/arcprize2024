@@ -7,7 +7,7 @@ from arcprize.builders import ArcBuilder
 class MatrixStep(StructuredPromptStep):
     """Can you make a 4x4 identity matrix for me?
     """
-    def response_model(self):
+    def response_class(self):
         return Matrix
 
 
@@ -21,8 +21,9 @@ def test_structured_response(llm: LlmDriver):
     step.execute(context)
     response_row = step.send_llm(llm, dialog)
     print(response_row)
-    assert(response_row.metadata.structured_response is Matrix)
-    print(response_row.metadata.structured_response)
+    result_object = response_row.metadata.structured_result
+    assert(result_object.__class__ == Matrix)
+    assert(response_row.metadata.structured_result_class == 'Matrix')
 
 
 def test_llm(llm: LlmDriver):

@@ -45,6 +45,10 @@ class Session(BaseModel):
 
         for row in self.dialog.rows:
             out.append(f'\n# {row.role.value.title()}')
-            out.append(row.text)
+            if row.metadata and row.metadata.structured_result:
+                out.append(f'*Structured result*:')
+                out.append(f'`{row.metadata.structured_result_class}`')
+            else:
+                out.append(row.text)
             out.append('')
         return '\n'.join(out)

@@ -88,12 +88,14 @@ class SystemPromptStep(PromptStep):
 class StructuredPromptStep(PromptStep):
     """A PromptStep where the output from the LLM goes into a Pydantic model.
 
-    Specify the model with response_model.
+    Specify the model with response_class.
     """
     @abstractmethod
-    def response_model(self) -> Type[BaseModel]:
-        """Indicates the class to use when responding. Subclasses must override this."""
+    def response_class(self) -> Type[BaseModel]:
+        """Indicates the class for the LLM to use when responding. Must be a Pydantic BaseModel."""
 
-    # def execute(self, context: TaskContext):
-    #     super().execute(context)
-    #     # Update the dialog line we added to insert the metadata for the class name.
+    def send_llm(self, llm: LlmDriver, dialog: Dialog) -> DialogRow:
+        """Send this dialog row to the LLM to get a response.
+        This is overridden by StructuredPromptStep when we need to force a structured output.
+        """
+        return llm.chat_structured(dialog, response_class=self.response_class())

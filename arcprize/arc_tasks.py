@@ -1,7 +1,7 @@
 from typing import Tuple
 
-from arclib.core import PromptStep, SystemPromptStep, TaskContext
-from arclib.models import ArcCase, CasePair
+from arclib.core import PromptStep, SystemPromptStep, TaskContext, StructuredPromptStep
+from arclib.models import ArcCase, CasePair, Matrix
 from arcprize.case_renderer import case_pair_list_text, row_group_text
 
 
@@ -83,7 +83,7 @@ class CheckAnswer1(PromptStep):
         return {'output_item_str': output_item_str, 'case_seq': case_seq}
 
 
-class ProposeTestAnswer(PromptStep):
+class ProposeTestAnswer(StructuredPromptStep):
     """Let's try another problem, this one is from the test set, the real exam.
     Here is the input pattern:
 
@@ -95,6 +95,9 @@ class ProposeTestAnswer(PromptStep):
         case = get_case(context)
         output_item_str = row_group_text(case.test[0].input, 0, 'Input', 'Test')
         return {'output_item_str': output_item_str}
+
+    def response_class(self):
+        return Matrix
 
 
 all_arc_task_classes = [

@@ -50,7 +50,7 @@ class LlmDriver(ABC):
             Note that the LLM driver must also set the token counts on the dialog rows.
         """
 
-    def chat_structured(self, dialog: Dialog, response_format: Type[BaseModel]) -> DialogRow:
+    def chat_structured(self, dialog: Dialog, response_class: Type[BaseModel]) -> DialogRow:
         """Start a chat and expect a structure response in JSON
 
         The response will be placed in the output DialogRow in row.metadata.structured_response.

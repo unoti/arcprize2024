@@ -1,7 +1,8 @@
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Any
 from pydantic import BaseModel, Field
+
 
 class DialogRole(str, Enum):
     """Types of text that can be used in DialogRow: who said the text."""
@@ -9,11 +10,20 @@ class DialogRole(str, Enum):
     ASSISTANT = "assistant"
     SYSTEM = "system"
 
+
+class DialogMetaData(BaseModel):
+    """Optional metadata about a dialog row."""
+    structured_result_class: Optional[str] # If the result was structured, this is its class.
+    structured_result: Any # If the result was structured, this is the json data for it.
+
+
 class DialogRow(BaseModel):
     """A row of text along with who said it."""
     role: DialogRole
     text: str
     created_at: datetime = Field(default_factory=datetime.now)
+    metadata: Optional[DialogMetaData] = None
+
 
 class Dialog(BaseModel):
     """A conversation between a user and assistant."""
