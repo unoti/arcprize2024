@@ -21,7 +21,7 @@ class ArcRunner:
     def _on_start_task(self, event: AgentSystemEvent):
         self.case_count += 1
         case_id = event.task_assignment.app_context['case_id']
-        print(f'({self.case_count}) Case {case_id}', end='', flush=True)
+        print(f'{self.case_count}. Case {case_id}', end='', flush=True)
     
     def _on_end_task(self, event: AgentSystemEvent):
         success = event.session.app_context.get('success') # From arc_tasks.ScoringStep.
