@@ -89,6 +89,17 @@ class CheckAnswer1(PromptStep):
         return {'output_item_str': output_item_str, 'case_seq': case_seq}
 
 
+class StrategyClarity(PromptStep):
+    """Do you have a solid, unambiguous theory of operation or algorithm that applies to
+    **all** of the cases?  If your hypothesis is not strong, rethink your approach and come
+    up with something that cleanly explains all of the use cases you know about.
+    Experience has taught us that one of the most common ways we end up getting problems
+    wrong is by trying to do these problems with an ambiguous algorithm.
+    Without crystal clarity on the rule we will almost certainly fail.  So this is your
+    chance to think about it if your algorithm does not have sufficient clarity.
+    """
+
+
 class ProposeTestAnswer(StructuredPromptStep):
     """Let's try another problem, this one is from the test set, the real exam.
     Here is the input pattern:
@@ -142,6 +153,7 @@ all_arc_task_classes = [
     InputOutputRows,
     ProposeSolution1,
     CheckAnswer1,
+    StrategyClarity,
     ProposeTestAnswer,
     ScoringStep,
 ]
