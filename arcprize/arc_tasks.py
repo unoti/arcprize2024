@@ -1,8 +1,14 @@
 from typing import Tuple
 
-from arclib.core import PromptStep, SystemPromptStep, TaskContext, StructuredPromptStep
+from arclib.core import (
+    PromptStep,
+    StructuredPromptStep,
+    SystemPromptStep,
+    TaskContext,
+    TaskStep,
+)
 from arclib.models import ArcCase, CasePair, Matrix
-from arcprize.case_renderer import case_pair_list_text, row_group_text
+from arcprize.case_renderer import case_pair_list_text, matrix_text
 
 
 def get_case(context: TaskContext) -> ArcCase:
@@ -65,7 +71,7 @@ class ProposeSolution1(PromptStep):
     """
     def prompt_variables(self, context: TaskContext) -> dict:
         case_seq, case = get_holdout_case(context)
-        input_item_str = row_group_text(case.input, case_seq, 'Input', 'Test')
+        input_item_str = matrix_text(case.input, case_seq, 'Input', 'Test')
         return {'input_item_str': input_item_str}
 
 
@@ -79,7 +85,7 @@ class CheckAnswer1(PromptStep):
     """
     def prompt_variables(self, context: TaskContext) -> dict:
         case_seq, case = get_holdout_case(context)
-        output_item_str = row_group_text(case.output, case_seq, 'Output', 'Test')
+        output_item_str = matrix_text(case.output, case_seq, 'Output', 'Test')
         return {'output_item_str': output_item_str, 'case_seq': case_seq}
 
 
@@ -93,11 +99,36 @@ class ProposeTestAnswer(StructuredPromptStep):
     """
     def prompt_variables(self, context: TaskContext) -> dict:
         case = get_case(context)
-        output_item_str = row_group_text(case.test[0].input, 0, 'Input', 'Test')
+        output_item_str = matrix_text(case.test[0].input, 0, 'Input', 'Test')
         return {'output_item_str': output_item_str}
 
     def response_class(self):
         return Matrix
+
+
+class ScoringStep(SystemPromptStep):
+    """
+    ### Agent Answer: `{scoring}`
+
+    {correct_answer}
+    """
+    def prompt_variables(self, context: TaskContext):
+        # This puts the score into the session and transcript.
+        # Because it's going in a System prompt and not user, this won't get
+        # sent to the LLM, because we only send to the LLM when the last dialog row is a User role.
+        last_row = context.session.dialog.rows[-1]
+        matrix: Matrix = last_row.metadata.structured_result
+        case = get_case(context)
+        success = case.test[0].output == matrix.rows
+        context.session.app_context['success'] = success # This will get saved into the session.
+        scoring = 'PASS' if success else 'FAIL'
+        if success:
+            correct_answer = ''
+        else:
+            answer = matrix_text(case.test[0].output, 'Output', 0, 'Test')
+            correct_answer = f'### Correct Answer\n\n```json\n{answer}\n```'
+        return {'scoring': scoring, 'correct_answer': correct_answer}
+
 
 
 all_arc_task_classes = [
@@ -108,4 +139,5 @@ all_arc_task_classes = [
     ProposeSolution1,
     CheckAnswer1,
     ProposeTestAnswer,
+    ScoringStep,
 ]

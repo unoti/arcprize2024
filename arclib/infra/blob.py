@@ -54,7 +54,7 @@ class FileSystemBlobProvider(BlobProvider):
         file_path = self.root_path / filename
         directory = file_path.parent
         os.makedirs(directory, exist_ok=True)
-        with open(file_path, 'w') as file:
+        with open(file_path, 'w', encoding='utf-8') as file:
             file.write(content)
 
     def load(self, filename: str) -> str:

@@ -20,9 +20,8 @@ def size_str(rows: List[DataRow]) -> str:
     return f'{width}x{height}'
     
 
-#rename row_group to matrix
-def row_group_strs(rows: List[DataRow], title: str, seq: int, case_prefix: str='') -> List[str]:
-    """Renders a group of rows (the input or output section of a CasePair) with title and size."""
+def matrix_strs(rows: List[DataRow], title: str, seq: int, case_prefix: str='') -> List[str]:
+    """Renders a matrix with title and size to a list of strings."""
     if case_prefix:
         case_prefix = case_prefix + ' '
     out = [f'### {case_prefix}Case {seq} {title}: size {size_str(rows)}']
@@ -33,17 +32,16 @@ def row_group_strs(rows: List[DataRow], title: str, seq: int, case_prefix: str='
     return out
 
 
-#rename row_group to matrix
-def row_group_text(rows: List[DataRow], title: str, seq: int, case_prefix: str='') -> str:
+def matrix_text(rows: List[DataRow], title: str, seq: int, case_prefix: str='') -> str:
     """Outputs a matrix to a string."""
-    return '\n'.join(row_group_strs(rows, title, seq, case_prefix))
+    return '\n'.join(matrix_strs(rows, title, seq, case_prefix))
 
 
 def case_pair_strs(case_pair: CasePair, seq: int, title_prefix: str) -> List[str]:
     """Renders a single case pair with its size to a list of strings."""
     out = [f'## {title_prefix} Case {seq}']
-    out.extend(row_group_strs(case_pair.input, 'Input', seq, title_prefix))
-    out.extend(row_group_strs(case_pair.output, 'Output', seq, title_prefix))
+    out.extend(matrix_strs(case_pair.input, 'Input', seq, title_prefix))
+    out.extend(matrix_strs(case_pair.output, 'Output', seq, title_prefix))
     out.append('')
     return out
 

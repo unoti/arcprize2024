@@ -47,7 +47,7 @@ class Session(BaseModel):
             out.append(f'\n# {row.role.value.title()}')
             if row.metadata and row.metadata.structured_result:
                 out.append(f'*Structured result*:')
-                out.append(f'`{row.metadata.structured_result_class}`')
+                out.append(f'`{row.metadata.structured_result}`')
             else:
                 out.append(row.text)
             out.append('')

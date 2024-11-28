@@ -23,7 +23,14 @@ class ArcRunner:
         print(f'({self.case_count}) Case {case_id}', end='', flush=True)
     
     def _on_end_task(self, event: AgentSystemEvent):
-        print('Done')
+        success = event.session.app_context.get('success') # From arc_tasks.ScoringStep.
+        if success is None:
+            result = '[No score]'
+        elif success:
+            result = '[PASS]'
+        else:
+            result = '[fail]'
+        print(result)
 
     def _on_end_step(self, event: AgentSystemEvent):
         print('.', end='', flush=True)
