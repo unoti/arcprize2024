@@ -11,6 +11,7 @@ class ArcRunner:
         self.agent_system.add_event(AgentSystemEventType.TASK_FINISHED, self._on_end_task)
         self.agent_system.add_event(AgentSystemEventType.STEP_FINISHED, self._on_end_step)
         self.case_count = 0
+        self.correct_count = 0
     
     def run(self):
         if self.verbose:
@@ -28,9 +29,11 @@ class ArcRunner:
             result = '[No score]'
         elif success:
             result = '[PASS]'
+            self.correct_count += 1
         else:
             result = '[fail]'
-        print(result)
+        percent = self.correct_count / self.case_count * 100
+        print(f'{result} {self.correct_count}/{self.case_count} = {percent:0.1f}%')
 
     def _on_end_step(self, event: AgentSystemEvent):
         print('.', end='', flush=True)
