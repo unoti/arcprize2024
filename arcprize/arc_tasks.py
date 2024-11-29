@@ -89,14 +89,52 @@ class CheckAnswer1(PromptStep):
         return {'output_item_str': output_item_str, 'case_seq': case_seq}
 
 
-class StrategyClarity(PromptStep):
-    """Do you have a solid, unambiguous theory of operation or algorithm that applies to
-    **all** of the cases?  If your hypothesis is not strong, rethink your approach and come
-    up with something that cleanly explains all of the use cases you know about.
-    Experience has taught us that one of the most common ways we end up getting problems
-    wrong is by trying to do these problems with an ambiguous algorithm.
-    Without crystal clarity on the rule we will almost certainly fail.  So this is your
-    chance to think about it if your algorithm does not have sufficient clarity.
+# Removed for experiment 3, see notebooks/3*
+# class StrategyClarity(PromptStep):
+#     """Do you have a solid, unambiguous theory of operation or algorithm that applies to
+#     **all** of the cases?  If your hypothesis is not strong, rethink your approach and come
+#     up with something that cleanly explains all of the use cases you know about.
+#     Experience has taught us that one of the most common ways we end up getting problems
+#     wrong is by trying to do these problems with an ambiguous algorithm.
+#     Without crystal clarity on the rule we will almost certainly fail.  So this is your
+#     chance to think about it if your algorithm does not have sufficient clarity.
+#     """
+
+# Added for experiment 3, see notebooks/3*
+class StrategiesStep(PromptStep):
+    """Here are some common strategies that are sometimes used in these tasks.  We are telling
+    you about these to give you a feel for the wide variety of things that can happen in these
+    tasks.  The sky is the limit on what these puzzles might do, so hopefully this list will
+    give you ideas on how to approach your problem.
+
+    Here are stratgies or explanations of the transforms needed to solve some puzzles we have
+    seen:
+    1. The input is a small pattern which is expanded in a 3x3 matrix out to the 9x9 matrix
+        by replicating it into the corresponding block of the big 9x9 matrix when the cell
+        is set within the 3x3 matrix.
+    2. We're doing a flood fill, finding fully enclosed spaces in the input and filling it in
+        with a color (number).
+    3. The output is a fixed height, and we replicate the pattern seen in the input, continuing
+        it to a fixed height.
+    4. There is a pattern implied in the input in the foreground (non-zero inputs).  Continue that
+        pattern into a same-sized output.  The position of that pattern must match the input
+        such that the output rows arrive in the same spots of the input, if you were to visualize
+        the input and output matrices as being superimposed on each other.
+    5. The input can be considered two 3x3 matrices separated by a barrier which is ignored.
+        Envision the two input matrices on top of each other, and do a boolean AND operation
+        to decide on the output in the output's 3x3 matrix.
+    6. There is a fixed square object which will be in the same position in the output, and the other objects
+        should be considered mobile objects.  The mobile objects will translate and move up adjacent
+        to the fixed object, sticking up against it.
+
+    We mention these strategies so you can get an idea of what a successful strategy explanation
+    sounds like, and to show you how widely varied and fiendish these puzzles can be.  In every case
+    there's always a definite way to for definitely predict what the output will be.  Often
+    it'll seem like the solution is elusive, or that you need to guess.  If you're feeling like
+    you need to guess, then that means you haven't figured out how the puzzles work yet.
+
+    Use this opportunity to consider whether you're satisfied with your understanding of how this case
+    works, and to refine your strategy before we take a real graded test question.
     """
 
 
@@ -146,14 +184,28 @@ class ScoringStep(SystemPromptStep):
 
 
 
+# all_arc_task_classes = [
+#     ArcSystemPrompt,
+#     IntroduceProblem,
+#     RowCount,
+#     InputOutputRows,
+#     ProposeSolution1,
+#     CheckAnswer1,
+#     StrategiesStep,
+#     #StrategyClarity,
+#     ProposeTestAnswer,
+#     ScoringStep,
+# ]
+
 all_arc_task_classes = [
-    ArcSystemPrompt,
+    #ArcSystemPrompt, # (experiment 3)
     IntroduceProblem,
-    RowCount,
-    InputOutputRows,
+    #RowCount, # (experiment 3)
+    #InputOutputRows, # (experiment 3)
     ProposeSolution1,
     CheckAnswer1,
-    StrategyClarity,
+    StrategiesStep, # (experiment 3)
+    #StrategyClarity, # Which replaces this step (experiment 3)
     ProposeTestAnswer,
     ScoringStep,
 ]
