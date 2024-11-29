@@ -22,6 +22,27 @@ def get_holdout_case(context: TaskContext) -> Tuple[int, CasePair]:
     return (index, case.train[index])
 
 
+def check_last_answer(context: TaskContext) -> Tuple[str, bool, str, ArcCase]:
+    """Returns (agent_answer: str, success: bool, pass_fail: str, case: ArcCase)"""
+    # Find last answer.
+    matrix: Matrix = None
+    for row in context.session.dialog.rows:
+        if row.metadata and row.metadata.structured_result:
+            matrix = row.metadata.structured_result
+    agent_answer = matrix_text(matrix.rows, 0, '', 'Agent Answer')
+    case = get_case(context)
+    success = case.test[0].output == matrix.rows
+    context.session.app_context['success'] = success # This will get saved into the session.
+    scoring = 'PASS' if success else 'FAIL'
+    return (agent_answer, success, scoring, case)
+
+
+def last_answer_failed(context: TaskContext) -> bool:
+    """Returns True if our last attempt to answer a question failed."""
+    _agent_answer, success, _scoring, _case = check_last_answer(context)
+    return not success
+
+
 class ArcSystemPrompt(SystemPromptStep):
     """You are an expert puzzle solver and an expert software engineer here
     to do everything you can to help the user.
@@ -54,8 +75,8 @@ class IntroduceProblem(PromptStep):
         return {'train_set_str': train_set_str}
 
 
-class RowCount(PromptStep):
-    """For problems like these, how many output rows do you think should be present?"""
+# class RowCount(PromptStep):
+#     """For problems like these, how many output rows do you think should be present?"""
 
 
 class InputOutputRows(PromptStep):
@@ -88,8 +109,7 @@ class CheckAnswer1(PromptStep):
         output_item_str = matrix_text(case.output, case_seq, 'Output', 'Test')
         return {'output_item_str': output_item_str, 'case_seq': case_seq}
 
-
-# Removed for experiment 3, see notebooks/3*
+# See notebook 3 for a discussion of these two strategy clarity steps.
 # class StrategyClarity(PromptStep):
 #     """Do you have a solid, unambiguous theory of operation or algorithm that applies to
 #     **all** of the cases?  If your hypothesis is not strong, rethink your approach and come
@@ -100,7 +120,7 @@ class CheckAnswer1(PromptStep):
 #     chance to think about it if your algorithm does not have sufficient clarity.
 #     """
 
-# Added for experiment 3, see notebooks/3*
+# Experiment 3. Sometimes we put this in for special experiments.
 class StrategiesStep(PromptStep):
     """Here are some common strategies that are sometimes used in these tasks.  We are telling
     you about these to give you a feel for the wide variety of things that can happen in these
@@ -155,6 +175,23 @@ class ProposeTestAnswer(StructuredPromptStep):
         return Matrix
 
 
+class ConsiderFailure(PromptStep):
+    """The system evaluated that answer, and your answer was wrong.
+    The evaluation does not tell us why it was wrong, or what the right answer was.
+    You will be given another chance to answer in a moment. But first, consider
+    what might have gone wrong and what you will do on your next attempt.
+    """
+    def condition(self, context: TaskContext):
+        return last_answer_failed(context) # Do this step only if our last attempt failed.
+
+
+class ProposeTestAnswer2(ProposeTestAnswer):
+    """Please supply another answer for that test problem again.
+    """
+    def condition(self, context: TaskContext):
+        return last_answer_failed(context) # Do this step only if our last attempt failed.
+
+
 class ScoringStep(SystemPromptStep):
     """
     ## Agent Answer: `{scoring}`
@@ -167,13 +204,7 @@ class ScoringStep(SystemPromptStep):
         # This puts the score into the session and transcript.
         # Because it's going in a System prompt and not user, this won't get
         # sent to the LLM, because we only send to the LLM when the last dialog row is a User role.
-        last_row = context.session.dialog.rows[-1]
-        matrix: Matrix = last_row.metadata.structured_result
-        agent_answer = matrix_text(matrix.rows, 0, '', 'Agent Answer')
-        case = get_case(context)
-        success = case.test[0].output == matrix.rows
-        context.session.app_context['success'] = success # This will get saved into the session.
-        scoring = 'PASS' if success else 'FAIL'
+        agent_answer, success, scoring, case = check_last_answer(context)
         if success:
             correct_answer = ''
         else:
@@ -184,28 +215,15 @@ class ScoringStep(SystemPromptStep):
 
 
 
-# all_arc_task_classes = [
-#     ArcSystemPrompt,
-#     IntroduceProblem,
-#     RowCount,
-#     InputOutputRows,
-#     ProposeSolution1,
-#     CheckAnswer1,
-#     StrategiesStep,
-#     #StrategyClarity,
-#     ProposeTestAnswer,
-#     ScoringStep,
-# ]
-
 all_arc_task_classes = [
-    #ArcSystemPrompt, # (experiment 3)
+    ArcSystemPrompt,
     IntroduceProblem,
-    #RowCount, # (experiment 3)
-    #InputOutputRows, # (experiment 3)
+    StrategiesStep, # Experiment 3, 4
+    InputOutputRows,
     ProposeSolution1,
     CheckAnswer1,
-    StrategiesStep, # (experiment 3)
-    #StrategyClarity, # Which replaces this step (experiment 3)
     ProposeTestAnswer,
+    ConsiderFailure,
+    ProposeTestAnswer2,
     ScoringStep,
 ]

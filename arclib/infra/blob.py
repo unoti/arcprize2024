@@ -61,7 +61,7 @@ class FileSystemBlobProvider(BlobProvider):
         file_path = self.root_path / filename
         if not file_path.exists():
             raise BlobProvider.NotFoundException(f'File {filename} not found.')
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding='utf-8') as file:
             return file.read()
 
     def find(self, prefix: Optional[str] = None) -> List[str]:
