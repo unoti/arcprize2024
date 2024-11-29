@@ -7,6 +7,8 @@ setup(
     packages=find_packages(),
     install_requires=[
         'openai',
+        'pandas',
         'pydantic',
+        'tabulate',
     ]
 )

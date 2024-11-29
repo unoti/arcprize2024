@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from arclib.infra.blob import BlobProvider
 from arclib.models import Session
+from arclib.dataproviders.case_metadata import get_case_titles
 
 
 class SessionStorageProvider(ABC):
@@ -16,7 +17,6 @@ class SessionStorageProvider(ABC):
     def load_session(self, session_id: str) -> Session:
         """Load a session by its ID."""
         pass
-
 
 class BlobSessionStorageProvider(SessionStorageProvider):
     """SessionStorageProvider with sessions stored in JSON backed by a BlobProvider.

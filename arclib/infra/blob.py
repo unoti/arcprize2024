@@ -65,6 +65,12 @@ class FileSystemBlobProvider(BlobProvider):
             return file.read()
 
     def find(self, prefix: Optional[str] = None) -> List[str]:
-        if prefix:
-            return [str(file.relative_to(self.root_path)) for file in self.root_path.glob(f"{prefix}*")]
-        return [str(file.relative_to(self.root_path)) for file in self.root_path.iterdir() if file.is_file()]
+        files = []
+        prefix_path = self.root_path / prefix if prefix else self.root_path
+
+        for root, _, filenames in os.walk(prefix_path):
+            for filename in filenames:
+                file_path = Path(root) / filename
+                relative_filename = str(file_path.relative_to(self.root_path))
+                files.append(relative_filename)
+        return files
